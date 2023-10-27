@@ -903,7 +903,7 @@ SDL_PumpEvents()
 int
 SDL_PollEvent(SDL_Event * event)
 {
-    return SDL_WaitEventTimeout(event, 0);
+    return SDL_WaitEventTimeout(event, 1);
 }
 
 static SDL_bool

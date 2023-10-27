@@ -179,16 +179,16 @@ UIKit_VideoQuit(_THIS)
 void
 UIKit_SuspendScreenSaver(_THIS)
 {
-    @autoreleasepool {
-        /* Ignore ScreenSaver API calls if the idle timer hint has been set. */
-        /* FIXME: The idle timer hint should be deprecated for SDL 2.1. */
-        if (!SDL_GetHintBoolean(SDL_HINT_IDLE_TIMER_DISABLED, SDL_FALSE)) {
-            UIApplication *app = [UIApplication sharedApplication];
-
-            /* Prevent the display from dimming and going to sleep. */
-            app.idleTimerDisabled = (_this->suspend_screensaver != SDL_FALSE);
-        }
-    }
+//    @autoreleasepool {
+//        /* Ignore ScreenSaver API calls if the idle timer hint has been set. */
+//        /* FIXME: The idle timer hint should be deprecated for SDL 2.1. */
+//        if (!SDL_GetHintBoolean(SDL_HINT_IDLE_TIMER_DISABLED, SDL_FALSE)) {
+//            UIApplication *app = [UIApplication sharedApplication];
+//
+//            /* Prevent the display from dimming and going to sleep. */
+//            app.idleTimerDisabled = (_this->suspend_screensaver != SDL_FALSE);
+//        }
+//    }
 }
 
 SDL_bool
@@ -210,27 +210,27 @@ UIKit_ComputeViewFrame(SDL_Window *window, UIScreen *screen)
         frame = data.uiwindow.bounds;
     }
 
-#if !TARGET_OS_TV
-    /* iOS 10 seems to have a bug where, in certain conditions, putting the
-     * device to sleep with the a landscape-only app open, re-orienting the
-     * device to portrait, and turning it back on will result in the screen
-     * bounds returning portrait orientation despite the app being in landscape.
-     * This is a workaround until a better solution can be found.
-     * https://bugzilla.libsdl.org/show_bug.cgi?id=3505
-     * https://bugzilla.libsdl.org/show_bug.cgi?id=3465
-     * https://forums.developer.apple.com/thread/65337 */
-    UIInterfaceOrientation orient = [UIApplication sharedApplication].statusBarOrientation;
-    BOOL landscape = UIInterfaceOrientationIsLandscape(orient);
-    BOOL fullscreen = CGRectEqualToRect(screen.bounds, frame);
-
-    /* The orientation flip doesn't make sense when the window is smaller
-     * than the screen (iPad Split View, for example). */
-    if (fullscreen && (landscape != (frame.size.width > frame.size.height))) {
-        float height = frame.size.width;
-        frame.size.width = frame.size.height;
-        frame.size.height = height;
-    }
-#endif
+//#if !TARGET_OS_TV
+//    /* iOS 10 seems to have a bug where, in certain conditions, putting the
+//     * device to sleep with the a landscape-only app open, re-orienting the
+//     * device to portrait, and turning it back on will result in the screen
+//     * bounds returning portrait orientation despite the app being in landscape.
+//     * This is a workaround until a better solution can be found.
+//     * https://bugzilla.libsdl.org/show_bug.cgi?id=3505
+//     * https://bugzilla.libsdl.org/show_bug.cgi?id=3465
+//     * https://forums.developer.apple.com/thread/65337 */
+//    UIInterfaceOrientation orient = [UIApplication sharedApplication].statusBarOrientation;
+//    BOOL landscape = UIInterfaceOrientationIsLandscape(orient);
+//    BOOL fullscreen = CGRectEqualToRect(screen.bounds, frame);
+//
+//    /* The orientation flip doesn't make sense when the window is smaller
+//     * than the screen (iPad Split View, for example). */
+//    if (fullscreen && (landscape != (frame.size.width > frame.size.height))) {
+//        float height = frame.size.width;
+//        frame.size.width = frame.size.height;
+//        frame.size.height = height;
+//    }
+//#endif
 
     return frame;
 }

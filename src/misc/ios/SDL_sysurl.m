@@ -27,9 +27,11 @@ int
 SDL_SYS_OpenURL(const char *url)
 { @autoreleasepool {
 
-    NSString *nsstr = [NSString stringWithUTF8String:url];
-    NSURL *nsurl = [NSURL URLWithString:nsstr];
-    return [[UIApplication sharedApplication] openURL:nsurl] ? 0 : -1;
+//    NSString *nsstr = [NSString stringWithUTF8String:url];
+//    NSURL *nsurl = [NSURL URLWithString:nsstr];
+//    return [[UIApplication sharedApplication] openURL:nsurl] ? 0 : -1;
+#warning 需要实现
+    return -1;
 }}
 
 /* vi: set ts=4 sw=4 expandtab: */

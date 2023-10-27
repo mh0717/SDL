@@ -107,7 +107,7 @@
 
         CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
 
-        eaglLayer.opaque = YES;
+        eaglLayer.opaque = SDL_getenv("UIKIT_TRANSPARENT") ? NO : YES;
         eaglLayer.drawableProperties = @{
             kEAGLDrawablePropertyRetainedBacking:@(retained),
             kEAGLDrawablePropertyColorFormat:colorFormat

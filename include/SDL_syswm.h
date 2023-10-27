@@ -91,9 +91,11 @@ typedef struct _NSWindow NSWindow;
 #if defined(SDL_VIDEO_DRIVER_UIKIT)
 #ifdef __OBJC__
 #include <UIKit/UIKit.h>
+@class SDL_uikitwindow;
 #else
 typedef struct _UIWindow UIWindow;
 typedef struct _UIViewController UIViewController;
+typedef struct _SDL_uikitwindow SDL_uikitwindow;
 #endif
 typedef Uint32 GLuint;
 #endif
@@ -277,12 +279,12 @@ struct SDL_SysWMinfo
         {
 #if defined(__OBJC__) && defined(__has_feature)
         #if __has_feature(objc_arc)
-            UIWindow __unsafe_unretained *window; /**< The UIKit window */
+            SDL_uikitwindow __unsafe_unretained *window; /**< The UIKit window */
         #else
-            UIWindow *window;                     /**< The UIKit window */
+            SDL_uikitwindow *window;                     /**< The UIKit window */
         #endif
 #else
-            UIWindow *window;                     /**< The UIKit window */
+            SDL_uikitwindow *window;                     /**< The UIKit window */
 #endif
             GLuint framebuffer; /**< The GL view's Framebuffer Object. It must be bound when rendering to the screen using GL. */
             GLuint colorbuffer; /**< The GL view's color Renderbuffer Object. It must be bound when SDL_GL_SwapWindow is called. */

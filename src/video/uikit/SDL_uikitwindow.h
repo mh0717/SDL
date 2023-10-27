@@ -26,6 +26,23 @@
 #import "SDL_uikitview.h"
 #import "SDL_uikitviewcontroller.h"
 
+
+extern CGRect SDL_SCREEN_BOUNDS;
+@interface SDL_uikitwindow : NSObject
+@property(assign, readonly) CGRect bounds;
+@property(nonatomic, assign, readwrite) BOOL hidden;
+@property(nullable, nonatomic, strong) UIScreen* screen;
+@property(nullable, nonatomic,strong) UIViewController *rootViewController;
+
+- (instancetype _Nonnull ) initWithFrame:(CGRect)frame;
+
+- (void) layoutIfNeeded;
+- (void)layoutSubviews;
+
+- (void) makeKeyAndVisible;
+
+@end
+
 extern int UIKit_CreateWindow(_THIS, SDL_Window * window);
 extern void UIKit_SetWindowTitle(_THIS, SDL_Window * window);
 extern void UIKit_ShowWindow(_THIS, SDL_Window * window);
@@ -46,7 +63,7 @@ extern NSUInteger UIKit_GetSupportedOrientations(SDL_Window * window);
 
 @interface SDL_WindowData : NSObject
 
-@property (nonatomic, strong) UIWindow *uiwindow;
+@property (nonatomic, strong) SDL_uikitwindow *uiwindow;
 @property (nonatomic, strong) SDL_uikitviewcontroller *viewcontroller;
 
 /* Array of SDL_uikitviews owned by this window. */

@@ -511,10 +511,10 @@
 						DevelopmentTeam = MXGJJ98X76;
 					};
 					FD15FCB10E086866003BDF25 = {
-						DevelopmentTeam = MXGJJ98X76;
+						DevelopmentTeam = KQ2S7RKY3D;
 					};
 					FD5F9BE30E0DEBEA008E885B = {
-						DevelopmentTeam = MXGJJ98X76;
+						DevelopmentTeam = KQ2S7RKY3D;
 					};
 					FDB651F70E43D1F300F688B5 = {
 						DevelopmentTeam = MXGJJ98X76;
@@ -894,6 +894,7 @@
 		FD15FCB50E086866003BDF25 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = KQ2S7RKY3D;
 				PRODUCT_NAME = Happy;
 			};
 			name = Debug;
@@ -908,6 +909,7 @@
 		FD5F9BE70E0DEBEB008E885B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = KQ2S7RKY3D;
 				PRODUCT_NAME = Accel;
 			};
 			name = Debug;

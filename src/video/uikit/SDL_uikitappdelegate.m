@@ -81,8 +81,8 @@ int SDL_UIKitRunApp(int argc, char *argv[], SDL_main_func mainFunction)
 static void SDLCALL
 SDL_IdleTimerDisabledChanged(void *userdata, const char *name, const char *oldValue, const char *hint)
 {
-    BOOL disable = (hint && *hint != '0');
-    [UIApplication sharedApplication].idleTimerDisabled = disable;
+//    BOOL disable = (hint && *hint != '0');
+//    [UIApplication sharedApplication].idleTimerDisabled = disable;
 }
 
 #if !TARGET_OS_TV

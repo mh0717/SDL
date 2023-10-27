@@ -53,6 +53,8 @@
 #endif
 #endif
 
+#import "SDL_uikitwindow.h"
+
 /* Apple Metal renderer implementation */
 
 /* macOS requires constants in a buffer to have a 256 byte alignment. */
@@ -1594,6 +1596,7 @@ METAL_SetVSync(SDL_Renderer * renderer, const int vsync)
 #endif
     return SDL_SetError("This Apple OS does not support displaySyncEnabled!");
 }
+
 
 static SDL_MetalView GetWindowView(SDL_Window *window)
 {

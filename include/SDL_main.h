@@ -143,6 +143,8 @@
 #define main    SDL_main
 #endif
 
+#undef SDL_MAIN_NEEDED
+
 #include "begin_code.h"
 #ifdef __cplusplus
 extern "C" {

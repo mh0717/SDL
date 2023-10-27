@@ -55,73 +55,74 @@ UIKit_WaitUntilMessageBoxClosed(const SDL_MessageBoxData *messageboxdata, int *c
 static BOOL
 UIKit_ShowMessageBoxAlertController(const SDL_MessageBoxData *messageboxdata, int *buttonid)
 {
-    int i;
-    int __block clickedindex = messageboxdata->numbuttons;
-    UIWindow *window = nil;
-    UIWindow *alertwindow = nil;
-
-    if (![UIAlertController class]) {
-        return NO;
-    }
-
-    UIAlertController *alert;
-    alert = [UIAlertController alertControllerWithTitle:@(messageboxdata->title)
-                                                message:@(messageboxdata->message)
-                                         preferredStyle:UIAlertControllerStyleAlert];
-
-    for (i = 0; i < messageboxdata->numbuttons; i++) {
-        UIAlertAction *action;
-        UIAlertActionStyle style = UIAlertActionStyleDefault;
-        const SDL_MessageBoxButtonData *sdlButton;
-
-        if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
-            sdlButton = &messageboxdata->buttons[messageboxdata->numbuttons - 1 - i];
-        } else {
-            sdlButton = &messageboxdata->buttons[i];
-        }
-
-        if (sdlButton->flags & SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT) {
-            style = UIAlertActionStyleCancel;
-        }
-
-        action = [UIAlertAction actionWithTitle:@(sdlButton->text)
-                                style:style
-                                handler:^(UIAlertAction *alertAction) {
-                                    clickedindex = (int)(sdlButton - messageboxdata->buttons);
-                                }];
-        [alert addAction:action];
-
-        if (sdlButton->flags & SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT) {
-            alert.preferredAction = action;
-        }
-    }
-
-    if (messageboxdata->window) {
-        SDL_WindowData *data = (__bridge SDL_WindowData *) messageboxdata->window->driverdata;
-        window = data.uiwindow;
-    }
-
-    if (window == nil || window.rootViewController == nil) {
-        alertwindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-        alertwindow.rootViewController = [UIViewController new];
-        alertwindow.windowLevel = UIWindowLevelAlert;
-
-        window = alertwindow;
-
-        [alertwindow makeKeyAndVisible];
-    }
-
-    [window.rootViewController presentViewController:alert animated:YES completion:nil];
-    UIKit_WaitUntilMessageBoxClosed(messageboxdata, &clickedindex);
-
-    if (alertwindow) {
-        alertwindow.hidden = YES;
-    }
-
-    UIKit_ForceUpdateHomeIndicator();
-
-    *buttonid = messageboxdata->buttons[clickedindex].buttonid;
-    return YES;
+#warning 需要实现
+//    int i;
+//    int __block clickedindex = messageboxdata->numbuttons;
+//    UIWindow *window = nil;
+//    UIWindow *alertwindow = nil;
+//
+//    if (![UIAlertController class]) {
+//        return NO;
+//    }
+//
+//    UIAlertController *alert;
+//    alert = [UIAlertController alertControllerWithTitle:@(messageboxdata->title)
+//                                                message:@(messageboxdata->message)
+//                                         preferredStyle:UIAlertControllerStyleAlert];
+//
+//    for (i = 0; i < messageboxdata->numbuttons; i++) {
+//        UIAlertAction *action;
+//        UIAlertActionStyle style = UIAlertActionStyleDefault;
+//        const SDL_MessageBoxButtonData *sdlButton;
+//
+//        if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
+//            sdlButton = &messageboxdata->buttons[messageboxdata->numbuttons - 1 - i];
+//        } else {
+//            sdlButton = &messageboxdata->buttons[i];
+//        }
+//
+//        if (sdlButton->flags & SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT) {
+//            style = UIAlertActionStyleCancel;
+//        }
+//
+//        action = [UIAlertAction actionWithTitle:@(sdlButton->text)
+//                                style:style
+//                                handler:^(UIAlertAction *alertAction) {
+//                                    clickedindex = (int)(sdlButton - messageboxdata->buttons);
+//                                }];
+//        [alert addAction:action];
+//
+//        if (sdlButton->flags & SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT) {
+//            alert.preferredAction = action;
+//        }
+//    }
+//
+//    if (messageboxdata->window) {
+//        SDL_WindowData *data = (__bridge SDL_WindowData *) messageboxdata->window->driverdata;
+//        window = data.uiwindow;
+//    }
+//
+//    if (window == nil || window.rootViewController == nil) {
+//        alertwindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+//        alertwindow.rootViewController = [UIViewController new];
+//        alertwindow.windowLevel = UIWindowLevelAlert;
+//
+//        window = alertwindow;
+//
+//        [alertwindow makeKeyAndVisible];
+//    }
+//
+//    [window.rootViewController presentViewController:alert animated:YES completion:nil];
+//    UIKit_WaitUntilMessageBoxClosed(messageboxdata, &clickedindex);
+//
+//    if (alertwindow) {
+//        alertwindow.hidden = YES;
+//    }
+//
+//    UIKit_ForceUpdateHomeIndicator();
+//
+//    *buttonid = messageboxdata->buttons[clickedindex].buttonid;
+//    return YES;
 }
 
 static void

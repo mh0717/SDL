@@ -59,33 +59,80 @@
 
 @end
 
-@interface SDL_uikitwindow : UIWindow
 
-- (void)layoutSubviews;
+CGRect SDL_SCREEN_BOUNDS;
 
-@end
-
+void update_sdl_winsize(CGRect size) {
+    SDL_SCREEN_BOUNDS = size;
+}
 @implementation SDL_uikitwindow
+
+- (instancetype) initWithFrame:(CGRect)frame {
+    self = [super init];
+    self.hidden = NO;
+    return self;
+}
+
+- (CGRect) bounds {
+    return SDL_SCREEN_BOUNDS;
+}
+
+- (void) layoutIfNeeded {
+    
+}
 
 - (void)layoutSubviews
 {
-    /* Workaround to fix window orientation issues in iOS 8. */
-    /* As of July 1 2019, I haven't been able to reproduce any orientation
-     * issues with this disabled on iOS 12. The issue this is meant to fix might
-     * only happen on iOS 8, or it might have been fixed another way with other
-     * code... This code prevents split view (iOS 9+) from working on iPads, so
-     * we want to avoid using it if possible. */
-    if (!UIKit_IsSystemVersionAtLeast(9.0)) {
-        self.frame = self.screen.bounds;
+//    /* Workaround to fix window orientation issues in iOS 8. */
+//    /* As of July 1 2019, I haven't been able to reproduce any orientation
+//     * issues with this disabled on iOS 12. The issue this is meant to fix might
+//     * only happen on iOS 8, or it might have been fixed another way with other
+//     * code... This code prevents split view (iOS 9+) from working on iPads, so
+//     * we want to avoid using it if possible. */
+//    if (!UIKit_IsSystemVersionAtLeast(9.0)) {
+//        self.frame = self.screen.bounds;
+//    }
+//    [super layoutSubviews];
+}
+
+- (void) setHidden:(BOOL)hidden {
+    _hidden = hidden;
+    [NSObject cancelPreviousPerformRequestsWithTarget:self.class];
+    
+    [self.class performSelector:@selector(refreshWindows) withObject:nil afterDelay:0];
+}
+
+- (void) makeKeyAndVisible {
+    self.hidden = NO;
+}
+
++ (void) refreshWindows {
+    NSMutableArray<UIViewController*>* _vcs = [NSMutableArray<UIViewController*> array];
+    
+    SDL_VideoDevice* device = SDL_GetVideoDevice();
+    SDL_Window *other;
+    if (device != NULL) {
+        for (other = device->windows; other; other = other->next) {
+            SDL_WindowData *data = (__bridge SDL_WindowData *)other->driverdata;
+            SDL_uikitwindow* window = data.uiwindow;
+            if (!window.hidden) {
+                if (other == SDL_GL_GetCurrentWindow()) {
+                    [_vcs insertObject:window.rootViewController atIndex:0];
+                }else {
+                    [_vcs addObject:window.rootViewController];
+                }
+            }
+        }
     }
-    [super layoutSubviews];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"SDL_REFRESH_WINDOWS" object:nil userInfo:@{@"vcs": _vcs}];
 }
 
 @end
 
 
 static int
-SetupWindowData(_THIS, SDL_Window *window, UIWindow *uiwindow, SDL_bool created)
+SetupWindowData(_THIS, SDL_Window *window, SDL_uikitwindow *uiwindow, SDL_bool created)
 {
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
     SDL_DisplayData *displaydata = (__bridge SDL_DisplayData *) display->driverdata;
@@ -167,11 +214,11 @@ UIKit_CreateWindow(_THIS, SDL_Window *window)
         SDL_Window *other;
 
         /* We currently only handle a single window per display on iOS */
-        for (other = _this->windows; other; other = other->next) {
-            if (other != window && SDL_GetDisplayForWindow(other) == display) {
-                return SDL_SetError("Only one window allowed per display.");
-            }
-        }
+//        for (other = _this->windows; other; other = other->next) {
+//            if (other != window && SDL_GetDisplayForWindow(other) == display) {
+//                return SDL_SetError("Only one window allowed per display.");
+//            }
+//        }
 
         /* If monitor has a resolution of 0x0 (hasn't been explicitly set by the
          * user, so it's in standby), try to force the display to a resolution
@@ -204,17 +251,17 @@ UIKit_CreateWindow(_THIS, SDL_Window *window)
         }
 
         if (data.uiscreen == [UIScreen mainScreen]) {
-            if (window->flags & (SDL_WINDOW_FULLSCREEN|SDL_WINDOW_BORDERLESS)) {
-                [UIApplication sharedApplication].statusBarHidden = YES;
-            } else {
-                [UIApplication sharedApplication].statusBarHidden = NO;
-            }
+//            if (window->flags & (SDL_WINDOW_FULLSCREEN|SDL_WINDOW_BORDERLESS)) {
+//                [UIApplication sharedApplication].statusBarHidden = YES;
+//            } else {
+//                [UIApplication sharedApplication].statusBarHidden = NO;
+//            }
         }
 #endif /* !TARGET_OS_TV */
 
         /* ignore the size user requested, and make a fullscreen window */
         /* !!! FIXME: can we have a smaller view? */
-        UIWindow *uiwindow = [[SDL_uikitwindow alloc] initWithFrame:data.uiscreen.bounds];
+        SDL_uikitwindow *uiwindow = [[SDL_uikitwindow alloc] initWithFrame:data.uiscreen.bounds];
 
         /* put the window on an external display if appropriate. */
         if (data.uiscreen != [UIScreen mainScreen]) {
@@ -282,13 +329,13 @@ UIKit_UpdateWindowBorder(_THIS, SDL_Window * window)
 
 #if !TARGET_OS_TV
     if (data.uiwindow.screen == [UIScreen mainScreen]) {
-        if (window->flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS)) {
-            [UIApplication sharedApplication].statusBarHidden = YES;
-        } else {
-            [UIApplication sharedApplication].statusBarHidden = NO;
-        }
-
-        [viewcontroller setNeedsStatusBarAppearanceUpdate];
+//        if (window->flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS)) {
+//            [UIApplication sharedApplication].statusBarHidden = YES;
+//        } else {
+//            [UIApplication sharedApplication].statusBarHidden = NO;
+//        }
+//
+//        [viewcontroller setNeedsStatusBarAppearanceUpdate];
     }
 
     /* Update the view's frame to account for the status bar change. */
@@ -433,67 +480,68 @@ UIKit_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo * info)
 NSUInteger
 UIKit_GetSupportedOrientations(SDL_Window * window)
 {
-    const char *hint = SDL_GetHint(SDL_HINT_ORIENTATIONS);
-    NSUInteger validOrientations = UIInterfaceOrientationMaskAll;
-    NSUInteger orientationMask = 0;
-
-    @autoreleasepool {
-        SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
-        UIApplication *app = [UIApplication sharedApplication];
-
-        /* Get all possible valid orientations. If the app delegate doesn't tell
-         * us, we get the orientations from Info.plist via UIApplication. */
-        if ([app.delegate respondsToSelector:@selector(application:supportedInterfaceOrientationsForWindow:)]) {
-            validOrientations = [app.delegate application:app supportedInterfaceOrientationsForWindow:data.uiwindow];
-        } else {
-            validOrientations = [app supportedInterfaceOrientationsForWindow:data.uiwindow];
-        }
-
-        if (hint != NULL) {
-            NSArray *orientations = [@(hint) componentsSeparatedByString:@" "];
-
-            if ([orientations containsObject:@"LandscapeLeft"]) {
-                orientationMask |= UIInterfaceOrientationMaskLandscapeLeft;
-            }
-            if ([orientations containsObject:@"LandscapeRight"]) {
-                orientationMask |= UIInterfaceOrientationMaskLandscapeRight;
-            }
-            if ([orientations containsObject:@"Portrait"]) {
-                orientationMask |= UIInterfaceOrientationMaskPortrait;
-            }
-            if ([orientations containsObject:@"PortraitUpsideDown"]) {
-                orientationMask |= UIInterfaceOrientationMaskPortraitUpsideDown;
-            }
-        }
-
-        if (orientationMask == 0 && (window->flags & SDL_WINDOW_RESIZABLE)) {
-            /* any orientation is okay. */
-            orientationMask = UIInterfaceOrientationMaskAll;
-        }
-
-        if (orientationMask == 0) {
-            if (window->w >= window->h) {
-                orientationMask |= UIInterfaceOrientationMaskLandscape;
-            }
-            if (window->h >= window->w) {
-                orientationMask |= (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown);
-            }
-        }
-
-        /* Don't allow upside-down orientation on phones, so answering calls is in the natural orientation */
-        if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-            orientationMask &= ~UIInterfaceOrientationMaskPortraitUpsideDown;
-        }
-
-        /* If none of the specified orientations are actually supported by the
-         * app, we'll revert to what the app supports. An exception would be
-         * thrown by the system otherwise. */
-        if ((validOrientations & orientationMask) == 0) {
-            orientationMask = validOrientations;
-        }
-    }
-
-    return orientationMask;
+    return UIInterfaceOrientationMaskAll;
+//    const char *hint = SDL_GetHint(SDL_HINT_ORIENTATIONS);
+//    NSUInteger validOrientations = UIInterfaceOrientationMaskAll;
+//    NSUInteger orientationMask = 0;
+//
+//    @autoreleasepool {
+//        SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
+//        UIApplication *app = [UIApplication sharedApplication];
+//
+//        /* Get all possible valid orientations. If the app delegate doesn't tell
+//         * us, we get the orientations from Info.plist via UIApplication. */
+//        if ([app.delegate respondsToSelector:@selector(application:supportedInterfaceOrientationsForWindow:)]) {
+//            validOrientations = [app.delegate application:app supportedInterfaceOrientationsForWindow:data.uiwindow];
+//        } else {
+//            validOrientations = [app supportedInterfaceOrientationsForWindow:data.uiwindow];
+//        }
+//
+//        if (hint != NULL) {
+//            NSArray *orientations = [@(hint) componentsSeparatedByString:@" "];
+//
+//            if ([orientations containsObject:@"LandscapeLeft"]) {
+//                orientationMask |= UIInterfaceOrientationMaskLandscapeLeft;
+//            }
+//            if ([orientations containsObject:@"LandscapeRight"]) {
+//                orientationMask |= UIInterfaceOrientationMaskLandscapeRight;
+//            }
+//            if ([orientations containsObject:@"Portrait"]) {
+//                orientationMask |= UIInterfaceOrientationMaskPortrait;
+//            }
+//            if ([orientations containsObject:@"PortraitUpsideDown"]) {
+//                orientationMask |= UIInterfaceOrientationMaskPortraitUpsideDown;
+//            }
+//        }
+//
+//        if (orientationMask == 0 && (window->flags & SDL_WINDOW_RESIZABLE)) {
+//            /* any orientation is okay. */
+//            orientationMask = UIInterfaceOrientationMaskAll;
+//        }
+//
+//        if (orientationMask == 0) {
+//            if (window->w >= window->h) {
+//                orientationMask |= UIInterfaceOrientationMaskLandscape;
+//            }
+//            if (window->h >= window->w) {
+//                orientationMask |= (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown);
+//            }
+//        }
+//
+//        /* Don't allow upside-down orientation on phones, so answering calls is in the natural orientation */
+//        if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
+//            orientationMask &= ~UIInterfaceOrientationMaskPortraitUpsideDown;
+//        }
+//
+//        /* If none of the specified orientations are actually supported by the
+//         * app, we'll revert to what the app supports. An exception would be
+//         * thrown by the system otherwise. */
+//        if ((validOrientations & orientationMask) == 0) {
+//            orientationMask = validOrientations;
+//        }
+//    }
+//
+//    return orientationMask;
 }
 #endif /* !TARGET_OS_TV */
 

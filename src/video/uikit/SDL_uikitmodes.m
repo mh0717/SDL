@@ -359,11 +359,11 @@ UIKit_DelDisplay(UIScreen *uiscreen)
 SDL_bool
 UIKit_IsDisplayLandscape(UIScreen *uiscreen)
 {
-#if !TARGET_OS_TV
-    if (uiscreen == [UIScreen mainScreen]) {
-        return UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
-    } else
-#endif /* !TARGET_OS_TV */
+//#if !TARGET_OS_TV
+//    if (uiscreen == [UIScreen mainScreen]) {
+//        return UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
+//    } else
+//#endif /* !TARGET_OS_TV */
     {
         CGSize size = uiscreen.bounds.size;
         return (size.width > size.height);
@@ -536,7 +536,7 @@ UIKit_QuitModes(_THIS)
 #if !TARGET_OS_TV
 void SDL_OnApplicationDidChangeStatusBarOrientation()
 {
-    BOOL isLandscape = UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
+    BOOL isLandscape = YES;//UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
     SDL_VideoDisplay *display = SDL_GetDisplay(0);
 
     if (display) {
@@ -560,25 +560,25 @@ void SDL_OnApplicationDidChangeStatusBarOrientation()
             currentmode->w = currentmode->h;
             currentmode->h = height;
         }
-
-        switch ([UIApplication sharedApplication].statusBarOrientation) {
-        case UIInterfaceOrientationPortrait:
-            orientation = SDL_ORIENTATION_PORTRAIT;
-            break;
-        case UIInterfaceOrientationPortraitUpsideDown:
-            orientation = SDL_ORIENTATION_PORTRAIT_FLIPPED;
-            break;
-        case UIInterfaceOrientationLandscapeLeft:
-            /* Bug: UIInterfaceOrientationLandscapeLeft/Right are reversed - http://openradar.appspot.com/7216046 */
-            orientation = SDL_ORIENTATION_LANDSCAPE_FLIPPED;
-            break;
-        case UIInterfaceOrientationLandscapeRight:
-            /* Bug: UIInterfaceOrientationLandscapeLeft/Right are reversed - http://openradar.appspot.com/7216046 */
-            orientation = SDL_ORIENTATION_LANDSCAPE;
-            break;
-        default:
-            break;
-        }
+        
+//        switch ([UIApplication sharedApplication].statusBarOrientation) {
+//        case UIInterfaceOrientationPortrait:
+//            orientation = SDL_ORIENTATION_PORTRAIT;
+//            break;
+//        case UIInterfaceOrientationPortraitUpsideDown:
+//            orientation = SDL_ORIENTATION_PORTRAIT_FLIPPED;
+//            break;
+//        case UIInterfaceOrientationLandscapeLeft:
+//            /* Bug: UIInterfaceOrientationLandscapeLeft/Right are reversed - http://openradar.appspot.com/7216046 */
+//            orientation = SDL_ORIENTATION_LANDSCAPE_FLIPPED;
+//            break;
+//        case UIInterfaceOrientationLandscapeRight:
+//            /* Bug: UIInterfaceOrientationLandscapeLeft/Right are reversed - http://openradar.appspot.com/7216046 */
+//            orientation = SDL_ORIENTATION_LANDSCAPE;
+//            break;
+//        default:
+//            break;
+//        }
         SDL_SendDisplayEvent(display, SDL_DISPLAYEVENT_ORIENTATION, orientation);
     }
 }
