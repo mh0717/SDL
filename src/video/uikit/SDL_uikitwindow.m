@@ -59,17 +59,20 @@
 
 @end
 
+__attribute__((visibility("default"))) __attribute__((used))
+CGRect SDL_SCREEN_BOUNDS = {0, 0, 320, 480};
 
-CGRect SDL_SCREEN_BOUNDS;
-
+__attribute__((visibility("default"))) __attribute__((used))
 void update_sdl_winsize(CGRect size) {
     SDL_SCREEN_BOUNDS = size;
 }
+
 @implementation SDL_uikitwindow
 
 - (instancetype) initWithFrame:(CGRect)frame {
     self = [super init];
     self.hidden = NO;
+    
     return self;
 }
 
@@ -189,6 +192,9 @@ SetupWindowData(_THIS, SDL_Window *window, SDL_uikitwindow *uiwindow, SDL_bool c
 #endif
     window->w = width;
     window->h = height;
+    
+    window->w = SDL_SCREEN_BOUNDS.size.width;
+    window->h = SDL_SCREEN_BOUNDS.size.height;
 
     /* The View Controller will handle rotating the view when the device
      * orientation changes. This will trigger resize events, if appropriate. */
