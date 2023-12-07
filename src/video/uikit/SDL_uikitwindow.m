@@ -103,6 +103,15 @@ void update_sdl_winsize(CGRect size) {
     [NSObject cancelPreviousPerformRequestsWithTarget:self.class];
     
     [self.class performSelector:@selector(refreshWindows) withObject:nil afterDelay:0];
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    NSString* notiName = _hidden ? @"UI_SHOW_VC_IN_TAB" : @"UI_HIDE_VC_IN_TAB";
+    NSNotification* noti = [[NSNotification alloc] initWithName:notiName object:nil userInfo:@{@"vc": self}];
+    [self performSelector:@selector(sendNoti:) withObject:noti afterDelay:0];
+}
+
+- (void) sendNoti:(NSNotification*)noti {
+    [[NSNotificationCenter defaultCenter] postNotification:noti];
 }
 
 - (void) makeKeyAndVisible {

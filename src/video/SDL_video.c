@@ -65,6 +65,9 @@
 
 /* Available video drivers */
 static VideoBootStrap *bootstrap[] = {
+#if SDL_VIDEO_DRIVER_PBOX
+    &PB_bootstrap,
+#endif
 #if SDL_VIDEO_DRIVER_COCOA
     &COCOA_bootstrap,
 #endif
@@ -4437,6 +4440,9 @@ SDL_GetMessageBoxCount(void)
     return SDL_AtomicGet(&SDL_messagebox_count);
 }
 
+#if SDL_VIDEO_DRIVER_PBOX
+#include "pbox/SDL_pbmessagebox.h"
+#endif
 #if SDL_VIDEO_DRIVER_ANDROID
 #include "android/SDL_androidmessagebox.h"
 #endif
@@ -4531,6 +4537,13 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     }
 
     /* It's completely fine to call this function before video is initialized */
+#if SDL_VIDEO_DRIVER_PBOX
+    if (retval == -1 &&
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_UIKIT) &&
+        PB_ShowMessageBox(messageboxdata, buttonid) == 0) {
+        retval = 0;
+    }
+#endif
 #if SDL_VIDEO_DRIVER_ANDROID
     if (retval == -1 &&
         Android_ShowMessageBox(messageboxdata, buttonid) == 0) {
