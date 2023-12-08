@@ -651,63 +651,16 @@ PB_ComputeViewFrame(SDL_Window *window, UIScreen *screen)
     /* Use the UIWindow bounds instead of the UIScreen bounds, when possible.
      * The uiwindow bounds may be smaller than the screen bounds when Split View
      * is used on an iPad. */
-    if (data != nil && data.uiwindow != nil) {
-        if (NSThread.isMainThread) {
-            frame = UIApplication.sharedApplication.keyWindow.bounds;
-        }
-        else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                frame = UIApplication.sharedApplication.keyWindow.bounds;
-            });
-        }
-    }
-
-#if !TARGET_OS_TV && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0)
-    BOOL hasiOS7 = UIKit_IsSystemVersionAtLeast(7.0);
-
-    /* The view should always show behind the status bar in iOS 7+. */
-    if (!hasiOS7 && !(window->flags & (SDL_WINDOW_BORDERLESS|SDL_WINDOW_FULLSCREEN))) {
-        frame = screen.applicationFrame;
-    }
-#endif
-
-#if !TARGET_OS_TV
-    /* iOS 10 seems to have a bug where, in certain conditions, putting the
-     * device to sleep with the a landscape-only app open, re-orienting the
-     * device to portrait, and turning it back on will result in the screen
-     * bounds returning portrait orientation despite the app being in landscape.
-     * This is a workaround until a better solution can be found.
-     * https://bugzilla.libsdl.org/show_bug.cgi?id=3505
-     * https://bugzilla.libsdl.org/show_bug.cgi?id=3465
-     * https://forums.developer.apple.com/thread/65337 */
-    if (PB_IsSystemVersionAtLeast(8.0)) {
-        __block UIInterfaceOrientation orient = UIInterfaceOrientationPortrait;
-        if (NSThread.isMainThread) {
-            orient = [UIApplication sharedApplication].statusBarOrientation;
-        }
-        else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                orient = [UIApplication sharedApplication].statusBarOrientation;
-            });
-        }
-        BOOL landscape = UIInterfaceOrientationIsLandscape(orient);
-        BOOL fullscreen = CGRectEqualToRect(screen.bounds, frame);
-
-        /* The orientation flip doesn't make sense when the window is smaller
-         * than the screen (iPad Split View, for example). */
-        if (fullscreen && (landscape != (frame.size.width > frame.size.height))) {
-            float height = frame.size.width;
-            frame.size.width = frame.size.height;
-            frame.size.height = height;
-        }
-    }
-#endif
-
-    return frame;
+//    if (data != nil && data.uiwindow != nil && data.uvcontroller && data.uvcontroller.view.window) {
+//        return data.uvcontroller.view.bounds;
+//    }
+    
+    extern CGRect SDL_SCREEN_BOUNDS;
+    return SDL_SCREEN_BOUNDS;
 }
 
 void
-PB_ForceUpdateHomeIndicator()
+PB_ForceUpdateHomeIndicator(void)
 {
 #if !TARGET_OS_TV
     /* Force the main SDL window to re-evaluate home indicator state */
@@ -760,3 +713,8 @@ SDL_bool SDL_PBIsIPad(void)
 }
 
 #endif /* SDL_VIDEO_DRIVER_UIKIT */
+
+
+BOOL isMainThread(void) {
+    return [NSThread isMainThread];
+}

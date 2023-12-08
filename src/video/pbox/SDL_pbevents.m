@@ -66,7 +66,7 @@ PB_PumpEvents(_THIS)
     
     SDL_Window *window;
     for (window = _this->windows; window; window = window->next) {
-        SDL_PBWindowData* wdata = (__bridge SDL_PBWindowData*)_this->windows->driverdata;
+        SDL_PBWindowData* wdata = (__bridge SDL_PBWindowData*)window->driverdata;
         NSArray* queue = [NSArray arrayWithArray:wdata.uiqueue];
         [wdata.uiqueue removeAllObjects];
         

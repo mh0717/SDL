@@ -491,12 +491,12 @@
         }
         [presentVC presentViewController:data.uvcontroller animated:YES completion:nil];
     };
-    if (NSThread.isMainThread) {
-        handler();
-    }
-    else {
-        dispatch_sync(dispatch_get_main_queue(), handler);
-    }
+//    if (NSThread.isMainThread) {
+//        handler();
+//    }
+//    else {
+//        dispatch_sync(dispatch_get_main_queue(), handler);
+//    }
 }
 
 - (void) layoutIfNeeded {
@@ -505,18 +505,23 @@
 
 - (void) setHidden:(BOOL)hidden {
     _hidden = hidden;
-    [NSObject cancelPreviousPerformRequestsWithTarget:self.class];
     
-//    [self.class performSelector:@selector(refreshWindows) withObject:nil afterDelay:0];
+    SDL_PBWindowData *data = (__bridge SDL_PBWindowData *) _rootViewController.window->driverdata;
+    if (data.uvcontroller == nil) {
+        return;
+    }
     
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    NSString* notiName = _hidden ? @"UI_SHOW_VC_IN_TAB" : @"UI_HIDE_VC_IN_TAB";
-    NSNotification* noti = [[NSNotification alloc] initWithName:notiName object:nil userInfo:@{@"vc": self}];
-    [self performSelector:@selector(sendNoti:) withObject:noti afterDelay:0];
+    NSString* notiName = !_hidden ? @"UI_SHOW_VC_IN_TAB" : @"UI_HIDE_VC_IN_TAB";
+    NSNotification* noti = [[NSNotification alloc] initWithName:notiName object:nil userInfo:@{@"vc": data.uvcontroller}];
+//    [self performSelector:@selector(sendNoti:) withObject:noti afterDelay:0];
+    [self sendNoti:noti];
 }
 
 - (void) sendNoti:(NSNotification*)noti {
-    [[NSNotificationCenter defaultCenter] postNotification:noti];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotification:noti];
+    });
+    
 }
 
 
@@ -685,6 +690,13 @@ PB_SetWindowTitle(_THIS, SDL_Window * window)
     @autoreleasepool {
         SDL_PBWindowData *data = (__bridge SDL_PBWindowData *) window->driverdata;
         data.uiwindow.title = @(window->title);
+        if (NSThread.isMainThread) {
+            data.uvcontroller.title = @(window->title);
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                data.uvcontroller.title = @(window->title);
+            });
+        }
     }
 }
 

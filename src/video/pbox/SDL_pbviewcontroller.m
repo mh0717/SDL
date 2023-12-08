@@ -886,7 +886,7 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     
     if (contentView) {
         _contentView = contentView;
-        [self.view addSubview:_contentView];
+        [self.view insertSubview:_contentView atIndex:0];
         _contentView.translatesAutoresizingMaskIntoConstraints = NO;
         [NSLayoutConstraint activateConstraints:@[
             [_contentView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor],
@@ -949,7 +949,27 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
 - (void) viewDidLoad {
     [super viewDidLoad];
     
+    UIButton* exitBtn = [UIButton buttonWithType:UIButtonTypeClose];
+    [exitBtn addTarget:self action:@selector(handleExit) forControlEvents:UIControlEventTouchDown];
+    [self.view addSubview:exitBtn];
+    
+    exitBtn.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+        [exitBtn.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor constant:-20],
+        [exitBtn.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor constant:20],
+        [_contentView.widthAnchor constraintEqualToConstant:30],
+        [_contentView.heightAnchor constraintEqualToConstant:30],
+    ]];
+    
+    
     self.isEnd = FALSE;
+}
+
+- (void) handleExit {
+    if (self.swindow) {
+        SDL_SendWindowEvent(self.swindow, SDL_WINDOWEVENT_CLOSE, 0, 0);
+        SDL_SendQuit();
+    }
 }
 
 
@@ -972,29 +992,28 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
         int w = (int) size.width;
         int h = (int) size.height;
 
-        
+        SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_RESIZED, w, h);
         
         __block SDL_pbviewcontroller* vc = data.viewcontroller;
         [data.uiqueue addObject:^{
             [vc viewDidLayoutSubviews];
-            SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_RESIZED, w, h);
         }];
     }
 }
 
-- (void) viewDidDisappear:(BOOL)animated {
-    if (self.isEnd) return;
-    
-    SDL_Window* wd = self.swindow;
-    if (wd && self.isBeingDismissed) {
-        self.isEnd = YES;
-        
-        SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)wd->driverdata;
-        [data.uiqueue addObject:^{
-            SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_CLOSE, 0, 0);
-        }];
-    }
-}
+//- (void) viewDidDisappear:(BOOL)animated {
+//    if (self.isEnd) return;
+//    
+//    SDL_Window* wd = self.swindow;
+//    if (wd && self.isBeingDismissed) {
+//        self.isEnd = YES;
+//        
+//        SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)wd->driverdata;
+//        [data.uiqueue addObject:^{
+//            SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_CLOSE, 0, 0);
+//        }];
+//    }
+//}
 
 
 - (SDL_Scancode)scancodeFromPress:(UIPress*)press

@@ -35,6 +35,8 @@
 #include <emscripten.h>
 #endif
 
+#include <CoreFoundation/CoreFoundation.h>
+
 /* The clock_gettime provides monotonous time, so we should use it if
    it's available. The clock_gettime function is behind ifdef
    for __USE_POSIX199309
@@ -183,9 +185,16 @@ SDL_GetPerformanceFrequency(void)
     return 1000000;
 }
 
+extern bool isMainThread(void);
+
 void
 SDL_Delay(Uint32 ms)
 {
+    if (isMainThread()) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, (float)ms / 1000, FALSE);
+        return;
+    }
+    
     int was_error;
 
 #if HAVE_NANOSLEEP

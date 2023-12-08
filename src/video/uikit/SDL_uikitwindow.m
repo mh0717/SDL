@@ -59,10 +59,10 @@
 
 @end
 
-__attribute__((visibility("default"))) __attribute__((used))
+__attribute__((visibility("default"))) __attribute__((used)) __attribute__((__used__))
 CGRect SDL_SCREEN_BOUNDS = {0, 0, 320, 480};
 
-__attribute__((visibility("default"))) __attribute__((used))
+__attribute__((visibility("default"))) __attribute__((used)) __attribute__((__used__))
 void update_sdl_winsize(CGRect size) {
     SDL_SCREEN_BOUNDS = size;
 }

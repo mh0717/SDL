@@ -100,14 +100,6 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 #endif
 
 
-
-@interface SDL_pbuiglview : SDL_pbuiview
-
-@property(nonatomic, weak) UIButton* exitButton;
-
-@end
-
-
 @implementation SDL_pbview {
     SDL_Window *sdlwindow;
 
@@ -177,14 +169,14 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 }
 
 - (void) setContentScaleFactor:(CGFloat)contentScaleFactor {
-//    if (NSThread.isMainThread) {
-//        self.view.contentScaleFactor = contentScaleFactor;
-//    }
-//    else {
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            self.view.contentScaleFactor = contentScaleFactor;
-//        });
-//    }
+    if (NSThread.isMainThread) {
+        self.view.contentScaleFactor = contentScaleFactor;
+    }
+    else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.view.contentScaleFactor = contentScaleFactor;
+        });
+    }
 }
 
 - (void)layoutSubviews {
@@ -302,7 +294,6 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 
 @interface SDL_pbuiview()
 
-@property(nonatomic, weak) UIButton* exitButton;
 
 @end
 
@@ -329,20 +320,8 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
         }
 #endif
     }
-    
-    
-    UIButton* exitBtn = [[UIButton alloc] initWithFrame:CGRectMake(200, 20, 30, 30)];
-    [exitBtn addTarget:self action:@selector(handleExit) forControlEvents:UIControlEventTouchDown];
-    [self addSubview:exitBtn];
-    self.exitButton = exitBtn;
 
     return self;
-}
-
-- (void) handleExit {
-    if ([self.nextResponder isKindOfClass:[SDL_pbuicontroller class]]) {
-        [(SDL_pbuicontroller*)self.nextResponder dismissViewControllerAnimated:YES completion:nil];
-    }
 }
 
 - (SDL_Window*) swindow {
@@ -366,10 +345,6 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
         view.frame = sframe;
         [view layoutSubviews];
     }];
-    
-    UIStatusBarManager *statusBarManager = [UIApplication sharedApplication].windows.firstObject.windowScene.statusBarManager;
-    CGFloat statusBarHeight = statusBarManager.statusBarFrame.size.height;
-    self.exitButton.frame = CGRectMake(self.frame.size.width - 45, statusBarHeight + 5, 30, 30);
 }
 
 #if !TARGET_OS_TV && defined(__IPHONE_13_4)
