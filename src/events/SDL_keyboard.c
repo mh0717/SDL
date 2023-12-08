@@ -1030,7 +1030,7 @@ SDL_SendKeyboardText(const char *text)
 
     /* Post the event, if desired */
     posted = 0;
-    if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
+//    if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
         SDL_Event event;
         size_t pos = 0, advance, length = SDL_strlen(text);
 
@@ -1044,7 +1044,7 @@ SDL_SendKeyboardText(const char *text)
             pos += advance;
             posted |= (SDL_PushEvent(&event) > 0);
         }
-    }
+//    }
     return (posted);
 }
 

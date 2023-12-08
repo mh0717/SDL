@@ -233,6 +233,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 
 @synthesize window;
 
+
 - (UITextField*) utextField {
     return textField;
 }
@@ -353,11 +354,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 
 - (void)viewDidLayoutSubviews
 {
-    const CGSize size = self.view.bounds.size;
-    int w = (int) size.width;
-    int h = (int) size.height;
-
-    SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED, w, h);
+    
 }
 
 - (void) setNeedsUpdateOfPrefersPointerLocked {
@@ -521,8 +518,15 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 
 - (void)setView:(SDL_pbview *)view
 {
+    _view = view;
 
-//    [view addSubview:textField];
+    if (NSThread.isMainThread) {
+        [_view.view addSubview:textField];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_view.view addSubview:self->textField];
+        });
+    }
 
     if (keyboardVisible) {
         [self showKeyboard];
@@ -577,7 +581,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
         handle();
     }
     else {
-        dispatch_sync(dispatch_get_main_queue(), handle);
+        dispatch_async(dispatch_get_main_queue(), handle);
     }
     
 }
@@ -591,7 +595,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
         [textField resignFirstResponder];
     }
     else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             [self->textField resignFirstResponder];
         });
     }
@@ -966,9 +970,17 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
                 [data.viewcontroller showKeyboard];
             }
         }
+        
+        const CGSize size = self.view.bounds.size;
+        int w = (int) size.width;
+        int h = (int) size.height;
+
+        
+        
         __block SDL_pbviewcontroller* vc = data.viewcontroller;
         [data.uiqueue addObject:^{
             [vc viewDidLayoutSubviews];
+            SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_RESIZED, w, h);
         }];
     }
 }
@@ -986,6 +998,118 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
         }];
     }
 }
+
+
+- (SDL_Scancode)scancodeFromPress:(UIPress*)press
+{
+#ifdef __IPHONE_13_4
+    if ([press respondsToSelector:@selector((key))]) {
+        if (press.key != nil) {
+            return (SDL_Scancode)press.key.keyCode;
+        }
+    }
+#endif
+
+    switch (press.type) {
+    case UIPressTypeUpArrow:
+        return SDL_SCANCODE_UP;
+    case UIPressTypeDownArrow:
+        return SDL_SCANCODE_DOWN;
+    case UIPressTypeLeftArrow:
+        return SDL_SCANCODE_LEFT;
+    case UIPressTypeRightArrow:
+        return SDL_SCANCODE_RIGHT;
+    case UIPressTypeSelect:
+        /* HIG says: "primary button behavior" */
+        return SDL_SCANCODE_RETURN;
+    case UIPressTypeMenu:
+        /* HIG says: "returns to previous screen" */
+        return SDL_SCANCODE_ESCAPE;
+    case UIPressTypePlayPause:
+        /* HIG says: "secondary button behavior" */
+        return SDL_SCANCODE_PAUSE;
+    default:
+        break;
+    }
+
+    return SDL_SCANCODE_UNKNOWN;
+}
+
+- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    [super pressesBegan: presses withEvent:event];
+    
+    SDL_Window* wd = self.swindow;
+    if (wd == NULL) return;
+    SDL_PBWindowData* wddata = (__bridge SDL_PBWindowData*)wd->driverdata;
+    
+    
+    if (!SDL_PBHasGCKeyboard()) {
+        for (UIPress *press in presses) {
+            SDL_Scancode scancode = [self scancodeFromPress:press];
+            [wddata.uiqueue addObject:^{
+                SDL_SendKeyboardKey(SDL_PRESSED, scancode);
+            }];
+        }
+    }
+}
+
+- (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    [super pressesEnded:presses withEvent:event];
+    
+    SDL_Window* wd = self.swindow;
+    if (wd == NULL) return;
+    SDL_PBWindowData* wddata = (__bridge SDL_PBWindowData*)wd->driverdata;
+    
+    
+    if (!SDL_PBHasGCKeyboard()) {
+        for (UIPress *press in presses) {
+            SDL_Scancode scancode = [self scancodeFromPress:press];
+            [wddata.uiqueue addObject:^{
+                SDL_SendKeyboardKey(SDL_RELEASED, scancode);
+            }];
+        }
+    }
+    
+    for (UIPress *press in presses) {
+        NSString* text = press.key.characters;
+        if (text && text.length == 1) {
+            [wddata.uiqueue addObject:^{
+                SDL_SendKeyboardText(text.UTF8String);
+            }];
+        }
+    }
+    
+   
+}
+
+- (void)pressesCancelled:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    [super pressesCancelled:presses withEvent:event];
+    
+    SDL_Window* wd = self.swindow;
+    if (wd == NULL) return;
+    SDL_PBWindowData* wddata = (__bridge SDL_PBWindowData*)wd->driverdata;
+    
+    
+    if (!SDL_PBHasGCKeyboard()) {
+        for (UIPress *press in presses) {
+            SDL_Scancode scancode = [self scancodeFromPress:press];
+            
+            [wddata.uiqueue addObject:^{
+                SDL_SendKeyboardKey(SDL_RELEASED, scancode);
+            }];
+        }
+    }
+}
+
+- (void)pressesChanged:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
+{
+    /* This is only called when the force of a press changes. */
+    [super pressesChanged:presses withEvent:event];
+}
+
 
 @end
 

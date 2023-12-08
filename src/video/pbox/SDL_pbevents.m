@@ -46,7 +46,7 @@
 #import <GameController/GameController.h>
 
 #define ENABLE_GCKEYBOARD
-//#define ENABLE_GCMOUSE
+#define ENABLE_GCMOUSE
 #endif
 
 extern BOOL UIKit_EventPumpEnabled;
@@ -87,15 +87,15 @@ PB_PumpEvents(_THIS)
     const CFTimeInterval seconds = 0.000002;
 
     /* Pump most event types. */
-    SInt32 result;
-    do {
-        result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, seconds, TRUE);
-    } while (result == kCFRunLoopRunHandledSource);
-
-    /* Make sure UIScrollView objects scroll properly. */
-    do {
-        result = CFRunLoopRunInMode((CFStringRef)UITrackingRunLoopMode, seconds, TRUE);
-    } while(result == kCFRunLoopRunHandledSource);
+//    SInt32 result;
+//    do {
+//        result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, seconds, TRUE);
+//    } while (result == kCFRunLoopRunHandledSource);
+//
+//    /* Make sure UIScrollView objects scroll properly. */
+//    do {
+//        result = CFRunLoopRunInMode((CFStringRef)UITrackingRunLoopMode, seconds, TRUE);
+//    } while(result == kCFRunLoopRunHandledSource);
 
     /* See the comment in the function definition. */
 #if SDL_VIDEO_OPENGL_ES || SDL_VIDEO_OPENGL_ES2
@@ -115,6 +115,7 @@ static void OnGCKeyboardConnected(GCKeyboard *keyboard) API_AVAILABLE(macos(11.0
     keyboard.keyboardInput.keyChangedHandler = ^(GCKeyboardInput *keyboard, GCControllerButtonInput *key, GCKeyCode keyCode, BOOL pressed)
     {
         SDL_SendKeyboardKey(pressed ? SDL_PRESSED : SDL_RELEASED, (SDL_Scancode)keyCode);
+        
     };
 
     dispatch_queue_t queue = dispatch_queue_create( "org.libsdl.input.keyboard", DISPATCH_QUEUE_SERIAL );
@@ -261,6 +262,11 @@ static void OnGCMouseConnected(GCMouse *mouse) API_AVAILABLE(macos(11.0), ios(14
     mouse.mouseInput.mouseMovedHandler = ^(GCMouseInput *mouse, float deltaX, float deltaY)
     {
         SDL_SendMouseMotion(SDL_GetMouseFocus(), mouseID, SDL_TRUE, (int)deltaX, -(int)deltaY);
+    };
+    
+    mouse.mouseInput.scroll.valueChangedHandler = ^(GCControllerDirectionPad *dpad, float xValue, float yValue)
+    {
+        SDL_SendMouseWheel(SDL_GetMouseFocus(), 0, xValue, yValue, SDL_MOUSEWHEEL_NORMAL);
     };
 
     dispatch_queue_t queue = dispatch_queue_create( "org.libsdl.input.mouse", DISPATCH_QUEUE_SERIAL );

@@ -40,7 +40,6 @@
 @property(nonatomic, assign) BOOL multipleTouchEnabled;
 
 @property(nonatomic, strong) UIView* _Nullable view;
-@property(nonatomic, weak) CAEAGLLayer* _Nullable eaglLayer;
 
 - (instancetype _Nullable )initWithFrame:(CGRect)frame;
 

@@ -107,76 +107,6 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 
 @end
 
-@implementation SDL_pbuiglview
-
-//- (instancetype) initWithFrame:(CGRect)frame {
-//    self = [super initWithFrame:frame];
-//    
-//    UIButton* exitBtn = [UIButton buttonWithType:UIButtonTypeClose];
-//    exitBtn.userInteractionEnabled = YES;
-//    [exitBtn addTarget:self action:@selector(handleExit) forControlEvents:UIControlEventTouchDown];
-//    [self addSubview:exitBtn];
-//    self.exitButton = exitBtn;
-//    
-//    return  self;
-//}
-//
-//- (void) handleExit {
-//    if ([self.nextResponder isKindOfClass:[SDL_pbuicontroller class]]) {
-//        [(SDL_pbuicontroller*)self.nextResponder dismissViewControllerAnimated:YES completion:nil];
-//    }
-//}
-//
-//- (void) layoutSubviews {
-//    [super layoutSubviews];
-//    
-//    UIStatusBarManager *statusBarManager = [UIApplication sharedApplication].windows.firstObject.windowScene.statusBarManager;
-//    CGFloat statusBarHeight = statusBarManager.statusBarFrame.size.height;
-//    self.exitButton.frame = CGRectMake(self.frame.size.width - 50, statusBarHeight + 5, 30, 30);
-//}
-
-
-
-+ (Class) layerClass {
-    return [CAEAGLLayer class];
-}
-
-@end
-
-
-@implementation SDL_pblayer
-
-//- (instancetype) init {
-//    self = [super init];
-//    self.rawPixels = NULL;
-//    return self;
-//}
-
-- (BOOL) contentsAreFlipped {
-    return YES;
-}
-
-- (nullable id<CAAction>)actionForKey:(NSString *)event {
-    return nil;
-}
-
-//- (void)removeFromSuperlayer {
-//    [super removeFromSuperlayer];
-//
-////    if (self.rawPixels != NULL) {
-////        free(self.rawPixels);
-////        self.rawPixels = NULL;
-////    }
-//}
-//
-//- (void) dealloc {
-////    if (self.rawPixels != NULL) {
-////        free(self.rawPixels);
-////        self.rawPixels = NULL;
-////    }
-//}
-
-@end
 
 @implementation SDL_pbview {
     SDL_Window *sdlwindow;
@@ -192,22 +122,12 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 - (instancetype)initWithFrame:(CGRect)frame
 {
     if ((self = [super init])) {
-//        self.layer = [[CALayer alloc] init];
-////        self.layer.anchorPoint = CGPointZero;
-//        self.layer.frame = frame;
-//        self.layer.opaque = YES;
-//        self.layer.backgroundColor = UIColor.blackColor.CGColor;
-//        self.layer.transform = CATransform3DMakeScale(1, -1, 1);
-////        self.layer.geometryFlipped = YES;
-//
         
         void (^handler)(void) = ^{
-            self.view = [[SDL_pbuiglview alloc] initWithFrame:frame];
-//            self.view.transform = CGAffineTransformMakeScale(1.0, -1.0);
+            self.view = [[SDL_pbuiview alloc] initWithFrame:frame];
             self.view.opaque = YES;
             self.view.backgroundColor = UIColor.blackColor;
             self.view.userInteractionEnabled = NO;
-            self.eaglLayer = (CAEAGLLayer*)self.view.layer;
         };
         if (NSThread.isMainThread) {
             handler();
@@ -215,37 +135,6 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
         else {
             dispatch_sync(dispatch_get_main_queue(), handler);
         }
-//#if TARGET_OS_TV
-//        /* Apple TV Remote touchpad swipe gestures. */
-//        UISwipeGestureRecognizer *swipeUp = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
-//        swipeUp.direction = UISwipeGestureRecognizerDirectionUp;
-//        [self addGestureRecognizer:swipeUp];
-//
-//        UISwipeGestureRecognizer *swipeDown = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
-//        swipeDown.direction = UISwipeGestureRecognizerDirectionDown;
-//        [self addGestureRecognizer:swipeDown];
-//
-//        UISwipeGestureRecognizer *swipeLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
-//        swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
-//        [self addGestureRecognizer:swipeLeft];
-//
-//        UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
-//        swipeRight.direction = UISwipeGestureRecognizerDirectionRight;
-//        [self addGestureRecognizer:swipeRight];
-//#elif defined(__IPHONE_13_4)
-//        if (@available(iOS 13.4, *)) {
-//            UIPanGestureRecognizer *mouseWheelRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(mouseWheelGesture:)];
-//            mouseWheelRecognizer.allowedScrollTypesMask = UIScrollTypeMaskDiscrete;
-//            mouseWheelRecognizer.allowedTouchTypes = @[ @(UITouchTypeIndirectPointer) ];
-//            mouseWheelRecognizer.cancelsTouchesInView = NO;
-//            mouseWheelRecognizer.delaysTouchesBegan = NO;
-//            mouseWheelRecognizer.delaysTouchesEnded = NO;
-//            [self addGestureRecognizer:mouseWheelRecognizer];
-//        }
-//#endif
-
-//        self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-//        self.autoresizesSubviews = YES;
 
         directTouchId = 1;
         indirectTouchId = 2;
@@ -266,83 +155,63 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 }
 
 - (CGRect) bounds {
-//    return self.layer.bounds;
     return self.view.bounds;
 }
 
 - (void) setBounds:(CGRect)bounds {
-//    self.layer.bounds = bounds;
-    if (NSThread.isMainThread) {
-        self.view.bounds = bounds;
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.view.bounds = bounds;
-        });
-    }
+//    if (NSThread.isMainThread) {
+//        self.view.bounds = bounds;
+//    }
+//    else {
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            self.view.bounds = bounds;
+//        });
+//    }
     
 }
 
 - (CGRect) frame {
-//    return self.layer.frame;
     return self.view.frame;
 }
 
 - (void) setFrame:(CGRect)frame {
-//    self.layer.frame = frame;
-    if (NSThread.isMainThread) {
-        self.view.frame = frame;
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.view.frame = frame;
-        });
-    }
+//    if (NSThread.isMainThread) {
+//        self.view.frame = frame;
+//    }
+//    else {
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            self.view.frame = frame;
+//        });
+//    }
     
 }
 
 - (CGFloat) contentScaleFactor {
-//    return  self.layer.contentsScale;
     return self.view.contentScaleFactor;
 }
 
 - (void) setContentScaleFactor:(CGFloat)contentScaleFactor {
-//    self.layer.contentsScale = contentScaleFactor;
-    if (NSThread.isMainThread) {
-        self.view.contentScaleFactor = contentScaleFactor;
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.view.contentScaleFactor = contentScaleFactor;
-        });
-    }
-    
+//    if (NSThread.isMainThread) {
+//        self.view.contentScaleFactor = contentScaleFactor;
+//    }
+//    else {
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            self.view.contentScaleFactor = contentScaleFactor;
+//        });
+//    }
 }
 
 - (void)layoutSubviews {
-    SDL_SendWindowEvent(self.window, SDL_WINDOWEVENT_RESIZED, self.bounds.size.width, self.bounds.size.height);
+    
 }
 
 - (void) setNeedsLayout {
-//    if (self.uiview) {
-//        UIView* uview = self.uiview;
-//        [NSOperationQueue.mainQueue addOperationWithBlock:^{
-//            [uview setNeedsLayout];
-//        }];
-//    }
 }
 
 - (void) layoutIfNeeded {
-//    if (self.uiview) {
-//        UIView* uview = self.uiview;
-//        [NSOperationQueue.mainQueue addOperationWithBlock:^{
-//            [uview layoutIfNeeded];
-//        }];
-//    }
 }
 
 - (void) removeFromSuperview {
-//    [self.layer removeFromSuperlayer];
     if (NSThread.isMainThread) {
         [self.view removeFromSuperview];
     }
@@ -440,334 +309,6 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 }
 #endif /* !TARGET_OS_TV && __IPHONE_13_4 */
 
-- (SDL_TouchDeviceType)touchTypeForTouch:(UITouch *)touch
-{
-#ifdef __IPHONE_9_0
-    if ([touch respondsToSelector:@selector((type))]) {
-        if (touch.type == UITouchTypeIndirect) {
-            return SDL_TOUCH_DEVICE_INDIRECT_RELATIVE;
-        }
-    }
-#endif
-
-    return SDL_TOUCH_DEVICE_DIRECT;
-}
-
-- (SDL_TouchID)touchIdForType:(SDL_TouchDeviceType)type
-{
-    switch (type) {
-        case SDL_TOUCH_DEVICE_DIRECT:
-        default:
-            return directTouchId;
-        case SDL_TOUCH_DEVICE_INDIRECT_RELATIVE:
-            return indirectTouchId;
-    }
-}
-
-- (CGPoint)touchLocation:(UITouch *)touch shouldNormalize:(BOOL)normalize
-{
-    UIView* view = ((__bridge SDL_PBWindowData*)self.window->driverdata).uvcontroller.view;
-    CGPoint point = [touch locationInView:view];
-
-    if (normalize) {
-        CGRect bounds = self.bounds;
-        point.x /= bounds.size.width;
-        point.y /= bounds.size.height;
-    }
-
-    return point;
-}
-
-- (float)pressureForTouch:(UITouch *)touch
-{
-#ifdef __IPHONE_9_0
-    if ([touch respondsToSelector:@selector(force)]) {
-        return (float) touch.force;
-    }
-#endif
-
-    return 1.0f;
-}
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    for (UITouch *touch in touches) {
-        BOOL handled = NO;
-
-#if !TARGET_OS_TV && defined(__IPHONE_13_4)
-        if (@available(iOS 13.4, *)) {
-            if (touch.type == UITouchTypeIndirectPointer) {
-                if (!SDL_PBHasGCMouse()) {
-                    int i;
-
-                    for (i = 1; i <= MAX_MOUSE_BUTTONS; ++i) {
-                        if ((event.buttonMask & SDL_BUTTON(i)) != 0) {
-                            Uint8 button;
-
-                            switch (i) {
-                            case 1:
-                                button = SDL_BUTTON_LEFT;
-                                break;
-                            case 2:
-                                button = SDL_BUTTON_RIGHT;
-                                break;
-                            case 3:
-                                button = SDL_BUTTON_MIDDLE;
-                                break;
-                            default:
-                                button = (Uint8)i;
-                                break;
-                            }
-                            SDL_SendMouseButton(sdlwindow, 0, SDL_PRESSED, button);
-                        }
-                    }
-                }
-                handled = YES;
-            }
-        }
-#endif
-        if (!handled) {
-            SDL_TouchDeviceType touchType = [self touchTypeForTouch:touch];
-            SDL_TouchID touchId = [self touchIdForType:touchType];
-            float pressure = [self pressureForTouch:touch];
-
-            if (SDL_AddTouch(touchId, touchType, "") < 0) {
-                continue;
-            }
-
-            /* FIXME, need to send: int clicks = (int) touch.tapCount; ? */
-
-            CGPoint locationInView = [self touchLocation:touch shouldNormalize:YES];
-            SDL_SendTouch(touchId, (SDL_FingerID)((size_t)touch), sdlwindow,
-                          SDL_TRUE, locationInView.x, locationInView.y, pressure);
-        }
-    }
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    for (UITouch *touch in touches) {
-        BOOL handled = NO;
-
-#if !TARGET_OS_TV && defined(__IPHONE_13_4)
-        if (@available(iOS 13.4, *)) {
-            if (touch.type == UITouchTypeIndirectPointer) {
-                if (!SDL_PBHasGCMouse()) {
-                    int i;
-
-                    for (i = 1; i <= MAX_MOUSE_BUTTONS; ++i) {
-                        if ((event.buttonMask & SDL_BUTTON(i)) != 0) {
-                            Uint8 button;
-
-                            switch (i) {
-                            case 1:
-                                button = SDL_BUTTON_LEFT;
-                                break;
-                            case 2:
-                                button = SDL_BUTTON_RIGHT;
-                                break;
-                            case 3:
-                                button = SDL_BUTTON_MIDDLE;
-                                break;
-                            default:
-                                button = (Uint8)i;
-                                break;
-                            }
-                            SDL_SendMouseButton(sdlwindow, 0, SDL_RELEASED, button);
-                        }
-                    }
-                }
-                handled = YES;
-            }
-        }
-#endif
-        if (!handled) {
-            SDL_TouchDeviceType touchType = [self touchTypeForTouch:touch];
-            SDL_TouchID touchId = [self touchIdForType:touchType];
-            float pressure = [self pressureForTouch:touch];
-
-            if (SDL_AddTouch(touchId, touchType, "") < 0) {
-                continue;
-            }
-
-            /* FIXME, need to send: int clicks = (int) touch.tapCount; ? */
-
-            CGPoint locationInView = [self touchLocation:touch shouldNormalize:YES];
-            SDL_SendTouch(touchId, (SDL_FingerID)((size_t)touch), sdlwindow,
-                          SDL_FALSE, locationInView.x, locationInView.y, pressure);
-        }
-    }
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [self touchesEnded:touches withEvent:event];
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    for (UITouch *touch in touches) {
-        BOOL handled = NO;
-
-#if !TARGET_OS_TV && defined(__IPHONE_13_4)
-        if (@available(iOS 13.4, *)) {
-            if (touch.type == UITouchTypeIndirectPointer) {
-                /* Already handled in pointerInteraction callback */
-                handled = YES;
-            }
-        }
-#endif
-        if (!handled) {
-            SDL_TouchDeviceType touchType = [self touchTypeForTouch:touch];
-            SDL_TouchID touchId = [self touchIdForType:touchType];
-            float pressure = [self pressureForTouch:touch];
-
-            if (SDL_AddTouch(touchId, touchType, "") < 0) {
-                continue;
-            }
-
-            CGPoint locationInView = [self touchLocation:touch shouldNormalize:YES];
-            SDL_SendTouchMotion(touchId, (SDL_FingerID)((size_t)touch), sdlwindow,
-                                locationInView.x, locationInView.y, pressure);
-        }
-    }
-}
-
-#if TARGET_OS_TV || defined(__IPHONE_9_1)
-- (SDL_Scancode)scancodeFromPress:(UIPress*)press
-{
-#ifdef __IPHONE_13_4
-    if ([press respondsToSelector:@selector((key))]) {
-        if (press.key != nil) {
-            return (SDL_Scancode)press.key.keyCode;
-        }
-    }
-#endif
-
-#if !SDL_JOYSTICK_DISABLED
-    /* Presses from Apple TV remote */
-    if (!SDL_AppleTVRemoteOpenedAsJoystick) {
-        switch (press.type) {
-        case UIPressTypeUpArrow:
-            return SDL_SCANCODE_UP;
-        case UIPressTypeDownArrow:
-            return SDL_SCANCODE_DOWN;
-        case UIPressTypeLeftArrow:
-            return SDL_SCANCODE_LEFT;
-        case UIPressTypeRightArrow:
-            return SDL_SCANCODE_RIGHT;
-        case UIPressTypeSelect:
-            /* HIG says: "primary button behavior" */
-            return SDL_SCANCODE_RETURN;
-        case UIPressTypeMenu:
-            /* HIG says: "returns to previous screen" */
-            return SDL_SCANCODE_ESCAPE;
-        case UIPressTypePlayPause:
-            /* HIG says: "secondary button behavior" */
-            return SDL_SCANCODE_PAUSE;
-        default:
-            break;
-        }
-    }
-#endif /* !SDL_JOYSTICK_DISABLED */
-
-    return SDL_SCANCODE_UNKNOWN;
-}
-
-- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
-{
-    if (!SDL_PBHasGCKeyboard()) {
-        for (UIPress *press in presses) {
-            SDL_Scancode scancode = [self scancodeFromPress:press];
-            SDL_SendKeyboardKey(SDL_PRESSED, scancode);
-        }
-    }
-//    [super pressesBegan:presses withEvent:event];
-}
-
-- (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
-{
-    if (!SDL_PBHasGCKeyboard()) {
-        for (UIPress *press in presses) {
-            SDL_Scancode scancode = [self scancodeFromPress:press];
-            SDL_SendKeyboardKey(SDL_RELEASED, scancode);
-        }
-    }
-//    [super pressesEnded:presses withEvent:event];
-}
-
-- (void)pressesCancelled:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
-{
-    if (!SDL_PBHasGCKeyboard()) {
-        for (UIPress *press in presses) {
-            SDL_Scancode scancode = [self scancodeFromPress:press];
-            SDL_SendKeyboardKey(SDL_RELEASED, scancode);
-        }
-    }
-//    [super pressesCancelled:presses withEvent:event];
-}
-
-- (void)pressesChanged:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event
-{
-    /* This is only called when the force of a press changes. */
-//    [super pressesChanged:presses withEvent:event];
-}
-
-#endif /* TARGET_OS_TV || defined(__IPHONE_9_1) */
-
--(void)mouseWheelGesture:(UIPanGestureRecognizer *)gesture
-{
-    UIView* view = ((__bridge SDL_PBWindowData*)self.window->driverdata).uvcontroller.view;
-    
-    if (gesture.state == UIGestureRecognizerStateBegan ||
-        gesture.state == UIGestureRecognizerStateChanged ||
-        gesture.state == UIGestureRecognizerStateEnded) {
-        CGPoint velocity = [gesture velocityInView:view];
-
-        if (velocity.x > 0.0f) {
-            velocity.x = -1.0;
-        } else if (velocity.x < 0.0f) {
-            velocity.x = 1.0f;
-        }
-        if (velocity.y > 0.0f) {
-            velocity.y = -1.0;
-        } else if (velocity.y < 0.0f) {
-            velocity.y = 1.0f;
-        }
-        if (velocity.x != 0.0f || velocity.y != 0.0f) {
-            SDL_SendMouseWheel(sdlwindow, 0, velocity.x, velocity.y, SDL_MOUSEWHEEL_NORMAL);
-        }
-    }
-}
-
-#if TARGET_OS_TV
--(void)swipeGesture:(UISwipeGestureRecognizer *)gesture
-{
-    /* Swipe gestures don't trigger begin states. */
-    if (gesture.state == UIGestureRecognizerStateEnded) {
-#if !SDL_JOYSTICK_DISABLED
-        if (!SDL_AppleTVRemoteOpenedAsJoystick) {
-            /* Send arrow key presses for now, as we don't have an external API
-             * which better maps to swipe gestures. */
-            switch (gesture.direction) {
-            case UISwipeGestureRecognizerDirectionUp:
-                SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_UP);
-                break;
-            case UISwipeGestureRecognizerDirectionDown:
-                SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_DOWN);
-                break;
-            case UISwipeGestureRecognizerDirectionLeft:
-                SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_LEFT);
-                break;
-            case UISwipeGestureRecognizerDirectionRight:
-                SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RIGHT);
-                break;
-            }
-        }
-#endif /* !SDL_JOYSTICK_DISABLED */
-    }
-}
-#endif /* TARGET_OS_TV */
 
 @end
 
@@ -787,46 +328,6 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 - (instancetype)initWithFrame:(CGRect)frame
 {
     if ((self = [super initWithFrame: frame])) {
-        
-//#if TARGET_OS_TV
-//        /* Apple TV Remote touchpad swipe gestures. */
-        
-        
-        
-//        UISwipeGestureRecognizer *swipeUp = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
-//        swipeUp.direction = UISwipeGestureRecognizerDirectionUp;
-//        [self addGestureRecognizer:swipeUp];
-//
-//        UISwipeGestureRecognizer *swipeDown = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
-//        swipeDown.direction = UISwipeGestureRecognizerDirectionDown;
-//        [self addGestureRecognizer:swipeDown];
-//
-//        UISwipeGestureRecognizer *swipeLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
-//        swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
-//        [self addGestureRecognizer:swipeLeft];
-//
-//        UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
-//        swipeRight.direction = UISwipeGestureRecognizerDirectionRight;
-//        [self addGestureRecognizer:swipeRight];
-        
-        
-        
-        
-        
-//#elif defined(__IPHONE_13_4)
-//        if (@available(iOS 13.4, *)) {
-//            UIPanGestureRecognizer *mouseWheelRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(mouseWheelGesture:)];
-//            mouseWheelRecognizer.allowedScrollTypesMask = UIScrollTypeMaskDiscrete;
-//            mouseWheelRecognizer.allowedTouchTypes = @[ @(UITouchTypeIndirectPointer) ];
-//            mouseWheelRecognizer.cancelsTouchesInView = NO;
-//            mouseWheelRecognizer.delaysTouchesBegan = NO;
-//            mouseWheelRecognizer.delaysTouchesEnded = NO;
-//            [self addGestureRecognizer:mouseWheelRecognizer];
-//        }
-//#endif
-
-//        self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-//        self.autoresizesSubviews = YES;
 
         directTouchId = 1;
         indirectTouchId = 2;
@@ -837,9 +338,9 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 #endif
 
 #if !TARGET_OS_TV && defined(__IPHONE_13_4)
-        if (@available(iOS 13.4, *)) {
-            [self addInteraction:[[UIPointerInteraction alloc] initWithDelegate:self]];
-        }
+//        if (@available(iOS 13.4, *)) {
+//            [self addInteraction:[[UIPointerInteraction alloc] initWithDelegate:self]];
+//        }
 #endif
     }
     
@@ -1129,43 +630,6 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event
 {
     [self touchesEnded:touches withEvent:event];
-}
-
--(void)swipeGesture:(UISwipeGestureRecognizer *)gesture
-{
-    SDL_Window* wd = self.swindow;
-    if (wd == NULL) return;
-    SDL_PBWindowData* wddata = (__bridge SDL_PBWindowData*)wd->driverdata;
-    
-    /* Swipe gestures don't trigger begin states. */
-    if (gesture.state == UIGestureRecognizerStateEnded) {
-        if (!SDL_AppleTVRemoteOpenedAsJoystick) {
-            /* Send arrow key presses for now, as we don't have an external API
-             * which better maps to swipe gestures. */
-            switch (gesture.direction) {
-            case UISwipeGestureRecognizerDirectionUp:
-                [wddata.uiqueue addObject:^{
-                    SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_UP);
-                }];
-                break;
-            case UISwipeGestureRecognizerDirectionDown:
-                [wddata.uiqueue addObject:^{
-                    SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_DOWN);
-                }];
-                break;
-            case UISwipeGestureRecognizerDirectionLeft:
-                [wddata.uiqueue addObject:^{
-                    SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_LEFT);
-                }];
-                break;
-            case UISwipeGestureRecognizerDirectionRight:
-                [wddata.uiqueue addObject:^{
-                    SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RIGHT);
-                }];
-                break;
-            }
-        }
-    }
 }
 
 @end
