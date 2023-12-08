@@ -949,9 +949,6 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
 - (void) viewDidLoad {
     [super viewDidLoad];
     
-//    [self addScreenLeftEdgePanGestureRecognizer:self.view];
-//    self.transitioningDelegate = self;
-    
     self.isEnd = FALSE;
 }
 
@@ -1047,9 +1044,7 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     if (!SDL_PBHasGCKeyboard()) {
         for (UIPress *press in presses) {
             SDL_Scancode scancode = [self scancodeFromPress:press];
-            [wddata.uiqueue addObject:^{
-                SDL_SendKeyboardKey(SDL_PRESSED, scancode);
-            }];
+            SDL_SendKeyboardKey(SDL_PRESSED, scancode);
         }
     }
 }
@@ -1066,18 +1061,14 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     if (!SDL_PBHasGCKeyboard()) {
         for (UIPress *press in presses) {
             SDL_Scancode scancode = [self scancodeFromPress:press];
-            [wddata.uiqueue addObject:^{
-                SDL_SendKeyboardKey(SDL_RELEASED, scancode);
-            }];
+            SDL_SendKeyboardKey(SDL_RELEASED, scancode);
         }
     }
     
     for (UIPress *press in presses) {
         NSString* text = press.key.characters;
         if (text && text.length == 1) {
-            [wddata.uiqueue addObject:^{
-                SDL_SendKeyboardText(text.UTF8String);
-            }];
+            SDL_SendKeyboardText(text.UTF8String);
         }
     }
     
@@ -1096,10 +1087,7 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     if (!SDL_PBHasGCKeyboard()) {
         for (UIPress *press in presses) {
             SDL_Scancode scancode = [self scancodeFromPress:press];
-            
-            [wddata.uiqueue addObject:^{
-                SDL_SendKeyboardKey(SDL_RELEASED, scancode);
-            }];
+            SDL_SendKeyboardKey(SDL_RELEASED, scancode);
         }
     }
 }

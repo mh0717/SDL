@@ -135,20 +135,6 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
         else {
             dispatch_sync(dispatch_get_main_queue(), handler);
         }
-
-        directTouchId = 1;
-        indirectTouchId = 2;
-
-#if !TARGET_OS_TV
-        self.multipleTouchEnabled = YES;
-        SDL_AddTouch(directTouchId, SDL_TOUCH_DEVICE_DIRECT, "");
-#endif
-
-#if !TARGET_OS_TV && defined(__IPHONE_13_4)
-//        if (@available(iOS 13.4, *)) {
-//            [self addInteraction:[[UIPointerInteraction alloc] initWithDelegate:self]];
-//        }
-#endif
     }
 
     return self;
@@ -334,13 +320,13 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 
 #if !TARGET_OS_TV
         self.multipleTouchEnabled = YES;
-//        SDL_AddTouch(directTouchId, SDL_TOUCH_DEVICE_DIRECT, "");
+        SDL_AddTouch(directTouchId, SDL_TOUCH_DEVICE_DIRECT, "");
 #endif
 
 #if !TARGET_OS_TV && defined(__IPHONE_13_4)
-//        if (@available(iOS 13.4, *)) {
-//            [self addInteraction:[[UIPointerInteraction alloc] initWithDelegate:self]];
-//        }
+        if (@available(iOS 13.4, *)) {
+            [self addInteraction:[[UIPointerInteraction alloc] initWithDelegate:self]];
+        }
 #endif
     }
     

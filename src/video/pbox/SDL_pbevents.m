@@ -77,25 +77,26 @@ PB_PumpEvents(_THIS)
     
     
     
-
-    /* Let the run loop run for a short amount of time: long enough for
-       touch events to get processed (which is important to get certain
-       elements of Game Center's GKLeaderboardViewController to respond
-       to touch input), but not long enough to introduce a significant
-       delay in the rest of the app.
-    */
-    const CFTimeInterval seconds = 0.000002;
-
-    /* Pump most event types. */
-//    SInt32 result;
-//    do {
-//        result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, seconds, TRUE);
-//    } while (result == kCFRunLoopRunHandledSource);
-//
-//    /* Make sure UIScrollView objects scroll properly. */
-//    do {
-//        result = CFRunLoopRunInMode((CFStringRef)UITrackingRunLoopMode, seconds, TRUE);
-//    } while(result == kCFRunLoopRunHandledSource);
+    if (NSThread.isMainThread) {
+        /* Let the run loop run for a short amount of time: long enough for
+         touch events to get processed (which is important to get certain
+         elements of Game Center's GKLeaderboardViewController to respond
+         to touch input), but not long enough to introduce a significant
+         delay in the rest of the app.
+         */
+        const CFTimeInterval seconds = 0.000002;
+        
+        /* Pump most event types. */
+        SInt32 result;
+        do {
+            result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, seconds, TRUE);
+        } while (result == kCFRunLoopRunHandledSource);
+        
+        /* Make sure UIScrollView objects scroll properly. */
+        do {
+            result = CFRunLoopRunInMode((CFStringRef)UITrackingRunLoopMode, seconds, TRUE);
+        } while(result == kCFRunLoopRunHandledSource);
+    }
 
     /* See the comment in the function definition. */
 #if SDL_VIDEO_OPENGL_ES || SDL_VIDEO_OPENGL_ES2
@@ -237,32 +238,32 @@ static void OnGCMouseConnected(GCMouse *mouse) API_AVAILABLE(macos(11.0), ios(14
 {
     SDL_MouseID mouseID = mice_connected;
 
-    mouse.mouseInput.leftButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
-    {
-        OnGCMouseButtonChanged(mouseID, SDL_BUTTON_LEFT, pressed);
-    };
-    mouse.mouseInput.middleButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
-    {
-        OnGCMouseButtonChanged(mouseID, SDL_BUTTON_MIDDLE, pressed);
-    };
-    mouse.mouseInput.rightButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
-    {
-        OnGCMouseButtonChanged(mouseID, SDL_BUTTON_RIGHT, pressed);
-    };
-
-    int auxiliary_button = SDL_BUTTON_X1;
-    for (GCControllerButtonInput *button in mouse.mouseInput.auxiliaryButtons) {
-        button.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
-        {
-            OnGCMouseButtonChanged(mouseID, auxiliary_button, pressed);
-        };
-        ++auxiliary_button;
-    }
-
-    mouse.mouseInput.mouseMovedHandler = ^(GCMouseInput *mouse, float deltaX, float deltaY)
-    {
-        SDL_SendMouseMotion(SDL_GetMouseFocus(), mouseID, SDL_TRUE, (int)deltaX, -(int)deltaY);
-    };
+//    mouse.mouseInput.leftButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+//    {
+//        OnGCMouseButtonChanged(mouseID, SDL_BUTTON_LEFT, pressed);
+//    };
+//    mouse.mouseInput.middleButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+//    {
+//        OnGCMouseButtonChanged(mouseID, SDL_BUTTON_MIDDLE, pressed);
+//    };
+//    mouse.mouseInput.rightButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+//    {
+//        OnGCMouseButtonChanged(mouseID, SDL_BUTTON_RIGHT, pressed);
+//    };
+//
+//    int auxiliary_button = SDL_BUTTON_X1;
+//    for (GCControllerButtonInput *button in mouse.mouseInput.auxiliaryButtons) {
+//        button.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+//        {
+//            OnGCMouseButtonChanged(mouseID, auxiliary_button, pressed);
+//        };
+//        ++auxiliary_button;
+//    }
+//
+//    mouse.mouseInput.mouseMovedHandler = ^(GCMouseInput *mouse, float deltaX, float deltaY)
+//    {
+//        SDL_SendMouseMotion(SDL_GetMouseFocus(), mouseID, SDL_TRUE, (int)deltaX, -(int)deltaY);
+//    };
     
     mouse.mouseInput.scroll.valueChangedHandler = ^(GCControllerDirectionPad *dpad, float xValue, float yValue)
     {
@@ -329,7 +330,8 @@ void SDL_PBInitGCMouse(void)
 
 SDL_bool SDL_PBHasGCMouse(void)
 {
-    return (mice_connected > 0);
+//    return (mice_connected > 0);
+    return 0;
 }
 
 SDL_bool SDL_PBGCMouseRelativeMode(void)

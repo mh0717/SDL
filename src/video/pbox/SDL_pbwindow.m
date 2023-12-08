@@ -507,7 +507,7 @@
     _hidden = hidden;
     [NSObject cancelPreviousPerformRequestsWithTarget:self.class];
     
-    [self.class performSelector:@selector(refreshWindows) withObject:nil afterDelay:0];
+//    [self.class performSelector:@selector(refreshWindows) withObject:nil afterDelay:0];
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     NSString* notiName = _hidden ? @"UI_SHOW_VC_IN_TAB" : @"UI_HIDE_VC_IN_TAB";
