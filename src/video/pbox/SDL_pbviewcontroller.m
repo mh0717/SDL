@@ -688,14 +688,14 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 }
 
 - (void)updateKeyboard {
-    if (NSThread.isMainThread) {
-        [self updateKeyboard_sdl];
-    }
-    else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            [self updateKeyboard_sdl];
-        });
-    }
+//    if (NSThread.isMainThread) {
+//        [self updateKeyboard_sdl];
+//    }
+//    else {
+//        dispatch_sync(dispatch_get_main_queue(), ^{
+//            [self updateKeyboard_sdl];
+//        });
+//    }
 }
 
 - (void)updateKeyboard_sdl
@@ -967,8 +967,11 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
 
 - (void) handleExit {
     if (self.swindow) {
-        SDL_SendWindowEvent(self.swindow, SDL_WINDOWEVENT_CLOSE, 0, 0);
-        SDL_SendQuit();
+        SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.swindow->driverdata;
+        [data.uiqueue addObject:^{
+            SDL_SendWindowEvent(self.swindow, SDL_WINDOWEVENT_CLOSE, 0, 0);
+            SDL_SendQuit();
+        }];
     }
 }
 
@@ -991,11 +994,10 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
         const CGSize size = self.view.bounds.size;
         int w = (int) size.width;
         int h = (int) size.height;
-
-        SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_RESIZED, w, h);
         
         __block SDL_pbviewcontroller* vc = data.viewcontroller;
         [data.uiqueue addObject:^{
+            SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_RESIZED, w, h);
             [vc viewDidLayoutSubviews];
         }];
     }
@@ -1057,13 +1059,15 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     
     SDL_Window* wd = self.swindow;
     if (wd == NULL) return;
-    SDL_PBWindowData* wddata = (__bridge SDL_PBWindowData*)wd->driverdata;
+    SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)wd->driverdata;
     
     
     if (!SDL_PBHasGCKeyboard()) {
         for (UIPress *press in presses) {
             SDL_Scancode scancode = [self scancodeFromPress:press];
-            SDL_SendKeyboardKey(SDL_PRESSED, scancode);
+            [data.uiqueue addObject:^{
+                SDL_SendKeyboardKey(SDL_PRESSED, scancode);
+            }];
         }
     }
 }
@@ -1074,20 +1078,24 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     
     SDL_Window* wd = self.swindow;
     if (wd == NULL) return;
-    SDL_PBWindowData* wddata = (__bridge SDL_PBWindowData*)wd->driverdata;
+    SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)wd->driverdata;
     
     
     if (!SDL_PBHasGCKeyboard()) {
         for (UIPress *press in presses) {
             SDL_Scancode scancode = [self scancodeFromPress:press];
-            SDL_SendKeyboardKey(SDL_RELEASED, scancode);
+            [data.uiqueue addObject:^{
+                SDL_SendKeyboardKey(SDL_RELEASED, scancode);
+            }];
         }
     }
     
     for (UIPress *press in presses) {
         NSString* text = press.key.characters;
         if (text && text.length == 1) {
-            SDL_SendKeyboardText(text.UTF8String);
+            [data.uiqueue addObject:^{
+                SDL_SendKeyboardText(text.UTF8String);
+            }];
         }
     }
     
@@ -1100,13 +1108,14 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     
     SDL_Window* wd = self.swindow;
     if (wd == NULL) return;
-    SDL_PBWindowData* wddata = (__bridge SDL_PBWindowData*)wd->driverdata;
-    
+    SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)wd->driverdata;
     
     if (!SDL_PBHasGCKeyboard()) {
         for (UIPress *press in presses) {
             SDL_Scancode scancode = [self scancodeFromPress:press];
-            SDL_SendKeyboardKey(SDL_RELEASED, scancode);
+            [data.uiqueue addObject:^{
+                SDL_SendKeyboardKey(SDL_RELEASED, scancode);
+            }];
         }
     }
 }

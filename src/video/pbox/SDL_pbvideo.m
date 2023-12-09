@@ -609,11 +609,14 @@ PB_VideoInit(_THIS)
     return 0;
 }
 
+extern void SDL_PBQuitGCKeyboard(void);
+extern void SDL_PBQuitGCMouse(void);
+
 void
 PB_VideoQuit(_THIS)
 {
-//    SDL_QuitGCKeyboard();
-//    SDL_QuitGCMouse();
+    SDL_PBQuitGCKeyboard();
+    SDL_PBQuitGCMouse();
 
     PB_QuitModes(_this);
 }
