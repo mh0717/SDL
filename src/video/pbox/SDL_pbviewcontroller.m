@@ -569,6 +569,10 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 /* reveal onscreen virtual keyboard */
 - (void)showKeyboard
 {
+    if (self.window == NULL || self.view == nil) {
+        return;
+    }
+    
     keyboardVisible = YES;
     void (^handle)(void) = ^{
         if (self->textField.window) {
@@ -589,6 +593,10 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 /* hide onscreen virtual keyboard */
 - (void)hideKeyboard
 {
+    if (self.window == NULL || self.view == nil) {
+        return;
+    }
+    
     keyboardVisible = NO;
 
     if (NSThread.isMainThread) {
@@ -604,6 +612,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 - (void)keyboardWillShow:(NSNotification *)notification
 {
     if (self.window == NULL) return;
+    if (self.view == nil) return;
 #if !TARGET_OS_TV
     CGRect kbrect = [[notification userInfo][UIKeyboardFrameEndUserInfoKey] CGRectValue];
     
@@ -624,6 +633,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 - (void)keyboardWillHide:(NSNotification *)notification
 {
     if (self.window == NULL) return;
+    if (self.view == nil) return;
     SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.window->driverdata;
     [data.uiqueue addObject:^{
         if (!self->showingKeyboard && !self->rotatingOrientation) {
@@ -635,6 +645,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 
 - (void)textFieldTextDidChange:(NSNotification *)notification {
     if (self.window == NULL) return;
+    if (self.view == nil) return;
     SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.window->driverdata;
     [data.uiqueue addObject:^{
         [self textFieldTextDidChange_sdl: notification];
@@ -643,6 +654,10 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 
 - (void)textFieldTextDidChange_sdl:(NSNotification *)notification
 {
+    if (self.window == NULL || self.view == nil) {
+        return;
+    }
+    
     if (changeText!=nil && textField.markedTextRange == nil)
     {
         NSUInteger len = changeText.length;
@@ -701,6 +716,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 - (void)updateKeyboard_sdl
 {
     if (self.window == NULL) return;
+    if (self.view == nil) return;
     SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.window->driverdata;
     UIView* uview = data.uvcontroller.view;
     
@@ -739,6 +755,10 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 /* UITextFieldDelegate method.  Invoked when user types something. */
 - (BOOL)textField:(UITextField *)_textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
+    if (self.window == NULL || self.view == nil) {
+        return YES;
+    }
+    
     NSUInteger len = string.length;
     if (len == 0) {
         changeText = nil;
@@ -764,7 +784,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 /* Terminates the editing session */
 - (BOOL)textFieldShouldReturn:(UITextField*)_textField
 {
-    if (self.window) {
+    if (self.window && self.view) {
         SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.window->driverdata;
         [data.uiqueue addObject:^{
             SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RETURN);
@@ -957,8 +977,8 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     [NSLayoutConstraint activateConstraints:@[
         [exitBtn.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor constant:-20],
         [exitBtn.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor constant:20],
-        [_contentView.widthAnchor constraintEqualToConstant:30],
-        [_contentView.heightAnchor constraintEqualToConstant:30],
+        [exitBtn.widthAnchor constraintEqualToConstant:30],
+        [exitBtn.heightAnchor constraintEqualToConstant:30],
     ]];
     
     

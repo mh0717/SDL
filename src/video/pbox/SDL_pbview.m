@@ -222,13 +222,17 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 
         data.viewcontroller.view = view;
 
-        data.uiwindow.rootViewController = nil;
-        data.uiwindow.rootViewController = data.viewcontroller;
+//        data.uiwindow.rootViewController = nil;
+//        data.uiwindow.rootViewController = data.viewcontroller;
 
         [data.uiwindow layoutIfNeeded];
         
         if (data.uvcontroller) {
             data.uvcontroller.swindow = NULL;
+        }
+        
+        if (data.viewcontroller) {
+            data.viewcontroller.window = NULL;
         }
     }
 
@@ -253,6 +257,10 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
         
         if (data.uvcontroller) {
             data.uvcontroller.swindow = window;
+        }
+        
+        if (data.viewcontroller) {
+            data.viewcontroller.window = window;
         }
 
         /* The view's bounds may not be correct until the next event cycle. That

@@ -506,6 +506,10 @@
 - (void) setHidden:(BOOL)hidden {
     _hidden = hidden;
     
+    if (_rootViewController == nil || _rootViewController.window == NULL) {
+        return;
+    }
+    
     SDL_PBWindowData *data = (__bridge SDL_PBWindowData *) _rootViewController.window->driverdata;
     if (data.uvcontroller == nil) {
         return;
@@ -833,6 +837,7 @@ PB_DestroyWindow(_THIS, SDL_Window * window)
              * SDL window. */
 //            data.uiwindow.rootViewController = nil;
             data.uiwindow.hidden = YES;
+            data.uiwindow.rootViewController = nil;
         }
     }
     window->driverdata = NULL;
