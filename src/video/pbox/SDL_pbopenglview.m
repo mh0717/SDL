@@ -29,6 +29,10 @@
     return [(SDL_pbuikitopenglview*)self.view backingHeight];
 }
 
+- (EAGLContext*) context {
+    return [(SDL_pbuikitopenglview*)self.view context];
+}
+
 
 - (instancetype)initWithFrame:(CGRect)frame
                         scale:(CGFloat)scale
@@ -54,7 +58,9 @@
                 handler();
             });
         }
+        self.contentScaleFactor = scale;
     }
+    
 
     return self;
 }
@@ -83,6 +89,27 @@
 {
     [(SDL_pbuikitopenglview*)self.view swapBuffers];
    
+}
+
+- (void) layoutSubviews {
+    [super layoutSubviews];
+    
+    int width  = (int) (self.frame.size.width * self.contentScaleFactor);
+    int height = (int) (self.frame.size.height * self.contentScaleFactor);
+
+    /* Update the color and depth buffer storage if the layer size has changed. */
+    if (width != self.backingWidth || height != self.backingHeight) {
+        EAGLContext *prevContext = [EAGLContext currentContext];
+        if (prevContext != self.context) {
+            [EAGLContext setCurrentContext:self.context];
+        }
+
+        [self updateFrame];
+
+        if (prevContext != self.context) {
+            [EAGLContext setCurrentContext:prevContext];
+        }
+    }
 }
 
 @end
@@ -122,6 +149,8 @@
     int samples;
 
     BOOL retainedBacking;
+    
+    CAEAGLLayer* eaglLayer;
 }
 
 @synthesize context;
@@ -181,7 +210,7 @@
             colorBufferFormat = GL_RGB565;
         }
 
-        CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
+        eaglLayer = (CAEAGLLayer *)self.layer;
 
         eaglLayer.opaque = SDL_getenv("UIKIT_TRANSPARENT") ? NO : YES;
         eaglLayer.drawableProperties = @{
@@ -302,7 +331,7 @@
     glGetIntegerv(GL_RENDERBUFFER_BINDING, &prevRenderbuffer);
 
     glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
-    [context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
+    [context renderbufferStorage:GL_RENDERBUFFER fromDrawable:eaglLayer];
 
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight);
@@ -389,27 +418,27 @@
     [context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-
-    int width  = (int) (self.bounds.size.width * self.contentScaleFactor);
-    int height = (int) (self.bounds.size.height * self.contentScaleFactor);
-
-    /* Update the color and depth buffer storage if the layer size has changed. */
-    if (width != backingWidth || height != backingHeight) {
-        EAGLContext *prevContext = [EAGLContext currentContext];
-        if (prevContext != context) {
-            [EAGLContext setCurrentContext:context];
-        }
-
-        [self updateFrame];
-
-        if (prevContext != context) {
-            [EAGLContext setCurrentContext:prevContext];
-        }
-    }
-}
+//- (void)layoutSubviews
+//{
+//    [super layoutSubviews];
+//
+//    int width  = (int) (self.bounds.size.width * self.contentScaleFactor);
+//    int height = (int) (self.bounds.size.height * self.contentScaleFactor);
+//
+//    /* Update the color and depth buffer storage if the layer size has changed. */
+//    if (width != backingWidth || height != backingHeight) {
+//        EAGLContext *prevContext = [EAGLContext currentContext];
+//        if (prevContext != context) {
+//            [EAGLContext setCurrentContext:context];
+//        }
+//
+//        [self updateFrame];
+//
+//        if (prevContext != context) {
+//            [EAGLContext setCurrentContext:prevContext];
+//        }
+//    }
+//}
 
 - (void)destroyFramebuffer
 {

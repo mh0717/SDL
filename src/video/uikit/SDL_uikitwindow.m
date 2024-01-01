@@ -59,12 +59,23 @@
 
 @end
 
-__attribute__((visibility("default"))) __attribute__((used)) __attribute__((__used__))
-CGRect SDL_SCREEN_BOUNDS = {0, 0, 320, 480};
-
-__attribute__((visibility("default"))) __attribute__((used)) __attribute__((__used__))
-void update_sdl_winsize(CGRect size) {
-    SDL_SCREEN_BOUNDS = size;
+//__attribute__((visibility("default"))) __attribute__((used)) __attribute__((__used__))
+//CGRect SDL_SCREEN_BOUNDS = {0, 0, 320, 480};
+//
+//__attribute__((visibility("default"))) __attribute__((used)) __attribute__((__used__))
+//void update_sdl_winsize(double width, double height) {
+//    SDL_SCREEN_BOUNDS = CGRectMake(0, 0, width, height);
+//}
+CGSize SDL_SCREEN_SIZE(void) {
+    char* csize = getenv("SDL_SCREEN_SIZE");
+    if (csize == NULL) {
+        return CGSizeMake(480, 320);
+    }
+    NSString* ssize = [NSString stringWithCString:csize];
+    NSArray<NSString*>* sizes = [ssize componentsSeparatedByString:@":"];
+    int width = [sizes.firstObject intValue];
+    int height = [sizes.lastObject intValue];
+    return CGSizeMake(width, height);
 }
 
 @implementation SDL_uikitwindow
@@ -77,7 +88,8 @@ void update_sdl_winsize(CGRect size) {
 }
 
 - (CGRect) bounds {
-    return SDL_SCREEN_BOUNDS;
+    CGSize size = SDL_SCREEN_SIZE();
+    return CGRectMake(0, 0, size.width, size.height);
 }
 
 - (void) layoutIfNeeded {
@@ -172,28 +184,28 @@ SetupWindowData(_THIS, SDL_Window *window, SDL_uikitwindow *uiwindow, SDL_bool c
         window->flags |= SDL_WINDOW_BORDERLESS;  /* never has a status bar. */
     }
 
-#if !TARGET_OS_TV
-    if (displaydata.uiscreen == [UIScreen mainScreen]) {
-        /* SDL_CreateWindow sets the window w&h to the display's bounds if the
-         * fullscreen flag is set. But the display bounds orientation might not
-         * match what we want, and GetSupportedOrientations call below uses the
-         * window w&h. They're overridden below anyway, so we'll just set them
-         * to the requested size for the purposes of determining orientation. */
-        window->w = window->windowed.w;
-        window->h = window->windowed.h;
-
-        NSUInteger orients = UIKit_GetSupportedOrientations(window);
-        BOOL supportsLandscape = (orients & UIInterfaceOrientationMaskLandscape) != 0;
-        BOOL supportsPortrait = (orients & (UIInterfaceOrientationMaskPortrait|UIInterfaceOrientationMaskPortraitUpsideDown)) != 0;
-
-        /* Make sure the width/height are oriented correctly */
-        if ((width > height && !supportsLandscape) || (height > width && !supportsPortrait)) {
-            int temp = width;
-            width = height;
-            height = temp;
-        }
-    }
-#endif /* !TARGET_OS_TV */
+//#if !TARGET_OS_TV
+//    if (displaydata.uiscreen == [UIScreen mainScreen]) {
+//        /* SDL_CreateWindow sets the window w&h to the display's bounds if the
+//         * fullscreen flag is set. But the display bounds orientation might not
+//         * match what we want, and GetSupportedOrientations call below uses the
+//         * window w&h. They're overridden below anyway, so we'll just set them
+//         * to the requested size for the purposes of determining orientation. */
+//        window->w = window->windowed.w;
+//        window->h = window->windowed.h;
+//
+//        NSUInteger orients = UIKit_GetSupportedOrientations(window);
+//        BOOL supportsLandscape = (orients & UIInterfaceOrientationMaskLandscape) != 0;
+//        BOOL supportsPortrait = (orients & (UIInterfaceOrientationMaskPortrait|UIInterfaceOrientationMaskPortraitUpsideDown)) != 0;
+//
+//        /* Make sure the width/height are oriented correctly */
+//        if ((width > height && !supportsLandscape) || (height > width && !supportsPortrait)) {
+//            int temp = width;
+//            width = height;
+//            height = temp;
+//        }
+//    }
+//#endif /* !TARGET_OS_TV */
 
 #if 0 /* Don't set the x/y position, it's already placed on a display */
     window->x = 0;
@@ -202,8 +214,8 @@ SetupWindowData(_THIS, SDL_Window *window, SDL_uikitwindow *uiwindow, SDL_bool c
     window->w = width;
     window->h = height;
     
-    window->w = SDL_SCREEN_BOUNDS.size.width;
-    window->h = SDL_SCREEN_BOUNDS.size.height;
+//    window->w = SDL_SCREEN_BOUNDS.size.width;
+//    window->h = SDL_SCREEN_BOUNDS.size.height;
 
     /* The View Controller will handle rotating the view when the device
      * orientation changes. This will trigger resize events, if appropriate. */

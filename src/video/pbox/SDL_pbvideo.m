@@ -658,8 +658,9 @@ PB_ComputeViewFrame(SDL_Window *window, UIScreen *screen)
 //        return data.uvcontroller.view.bounds;
 //    }
     
-    extern CGRect SDL_SCREEN_BOUNDS;
-    return SDL_SCREEN_BOUNDS;
+    extern CGSize SDL_SCREEN_SIZE(void);
+    CGSize size = SDL_SCREEN_SIZE();
+    return CGRectMake(0, 0, size.width, size.height);
 }
 
 void

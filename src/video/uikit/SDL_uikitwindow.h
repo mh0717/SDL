@@ -27,7 +27,6 @@
 #import "SDL_uikitviewcontroller.h"
 
 
-extern CGRect SDL_SCREEN_BOUNDS;
 @interface SDL_uikitwindow : NSObject
 @property(assign, readonly) CGRect bounds;
 @property(nonatomic, assign, readwrite) BOOL hidden;

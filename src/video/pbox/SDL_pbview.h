@@ -32,7 +32,7 @@
 //#endif
 @interface SDL_pbview : NSObject
 
-@property(nonatomic, readwrite) CGRect bounds;
+@property(nonatomic, readonly) CGRect bounds;
 @property(nonatomic, readwrite) CGRect frame;
 
 //@property(nonatomic, strong) CALayer* layer;

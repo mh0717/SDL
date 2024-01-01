@@ -120,6 +120,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
             self.view.opaque = YES;
             self.view.backgroundColor = UIColor.blackColor;
             self.view.userInteractionEnabled = NO;
+            self.contentScaleFactor = self.view.contentScaleFactor;
         };
         if (NSThread.isMainThread) {
             handler();
@@ -133,50 +134,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 }
 
 - (CGRect) bounds {
-    return self.view.bounds;
-}
-
-- (void) setBounds:(CGRect)bounds {
-//    if (NSThread.isMainThread) {
-//        self.view.bounds = bounds;
-//    }
-//    else {
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            self.view.bounds = bounds;
-//        });
-//    }
-    
-}
-
-- (CGRect) frame {
-    return self.view.frame;
-}
-
-- (void) setFrame:(CGRect)frame {
-//    if (NSThread.isMainThread) {
-//        self.view.frame = frame;
-//    }
-//    else {
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            self.view.frame = frame;
-//        });
-//    }
-    
-}
-
-- (CGFloat) contentScaleFactor {
-    return self.view.contentScaleFactor;
-}
-
-- (void) setContentScaleFactor:(CGFloat)contentScaleFactor {
-    if (NSThread.isMainThread) {
-        self.view.contentScaleFactor = contentScaleFactor;
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.view.contentScaleFactor = contentScaleFactor;
-        });
-    }
+    return CGRectMake(0, 0, _frame.size.width, _frame.size.height);
 }
 
 - (void)layoutSubviews {
@@ -349,8 +307,10 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
     SDL_PBWindowData *data = (__bridge SDL_PBWindowData *) self.swindow->driverdata;
     SDL_pbview* view = data.viewcontroller.view;
     CGRect sframe = self.bounds;
+    CGFloat scale = self.contentScaleFactor;
     [data.uiqueue addObject:^{
         view.frame = sframe;
+        view.contentScaleFactor = scale;
         [view layoutSubviews];
     }];
 }
