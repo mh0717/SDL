@@ -743,6 +743,8 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
     frame.origin.y += offset.y;
 
     uview.frame = frame;
+    
+    data.uvcontroller.preferredContentSize = frame.size;
 }
 
 - (void)setKeyboardHeight:(int)height
@@ -969,17 +971,17 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
 - (void) viewDidLoad {
     [super viewDidLoad];
     
-    UIButton* exitBtn = [UIButton buttonWithType:UIButtonTypeClose];
-    [exitBtn addTarget:self action:@selector(handleExit) forControlEvents:UIControlEventTouchDown];
-    [self.view addSubview:exitBtn];
-    
-    exitBtn.translatesAutoresizingMaskIntoConstraints = NO;
-    [NSLayoutConstraint activateConstraints:@[
-        [exitBtn.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor constant:-20],
-        [exitBtn.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor constant:20],
-        [exitBtn.widthAnchor constraintEqualToConstant:30],
-        [exitBtn.heightAnchor constraintEqualToConstant:30],
-    ]];
+//    UIButton* exitBtn = [UIButton buttonWithType:UIButtonTypeClose];
+//    [exitBtn addTarget:self action:@selector(handleExit) forControlEvents:UIControlEventTouchDown];
+//    [self.view addSubview:exitBtn];
+//    
+//    exitBtn.translatesAutoresizingMaskIntoConstraints = NO;
+//    [NSLayoutConstraint activateConstraints:@[
+//        [exitBtn.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor constant:-20],
+//        [exitBtn.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor constant:20],
+//        [exitBtn.widthAnchor constraintEqualToConstant:30],
+//        [exitBtn.heightAnchor constraintEqualToConstant:30],
+//    ]];
     
     
     self.isEnd = FALSE;

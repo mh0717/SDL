@@ -597,10 +597,12 @@ SetupWindowData(_THIS, SDL_Window *window, SDL_pbwindow *uiwindow, SDL_bool crea
     if (NSThread.isMainThread) {
         data.uvcontroller = [[SDL_pbuicontroller alloc] initWithNibName:nil bundle:nil];
         data.uvcontroller.swindow = window;
+        data.uvcontroller.preferredContentSize = CGSizeMake(width, height);
     } else {
         dispatch_sync(dispatch_get_main_queue(), ^{
             data.uvcontroller = [[SDL_pbuicontroller alloc] initWithNibName:nil bundle:nil];
             data.uvcontroller.swindow = window;
+            data.uvcontroller.preferredContentSize = CGSizeMake(width, height);
         });
     }
     

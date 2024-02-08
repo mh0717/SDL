@@ -649,7 +649,7 @@ CGRect
 PB_ComputeViewFrame(SDL_Window *window, UIScreen *screen)
 {
     SDL_PBWindowData *data = (__bridge SDL_PBWindowData *) window->driverdata;
-    __block CGRect frame = screen.bounds;
+//    __block CGRect frame = screen.bounds;
 
     /* Use the UIWindow bounds instead of the UIScreen bounds, when possible.
      * The uiwindow bounds may be smaller than the screen bounds when Split View
@@ -657,6 +657,10 @@ PB_ComputeViewFrame(SDL_Window *window, UIScreen *screen)
 //    if (data != nil && data.uiwindow != nil && data.uvcontroller && data.uvcontroller.view.window) {
 //        return data.uvcontroller.view.bounds;
 //    }
+    
+    if (SDL_WINDOW_FULLSCREEN != (window->flags & SDL_WINDOW_FULLSCREEN) && window->w >= 10 && window->h >= 10) {
+        return CGRectMake(0, 0, window->w, window->h);
+    }
     
     extern CGSize SDL_SCREEN_SIZE(void);
     CGSize size = SDL_SCREEN_SIZE();
