@@ -990,4 +990,19 @@ PB_SetWindowOpacity(_THIS, SDL_Window * window, float opacity)
     return 0;
 }
 
+void PB_SetWindowSize(_THIS, SDL_Window * window)
+{
+    SDL_PBWindowData *data = (__bridge SDL_PBWindowData *) window->driverdata;
+    if (data.uvcontroller) {
+        if (NSThread.isMainThread) {
+            data.uvcontroller.preferredContentSize = CGSizeMake(window->w, window->h);
+        }
+        else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                data.uvcontroller.preferredContentSize = CGSizeMake(window->w, window->h);
+            });
+        }
+    }
+}
+
 #endif /* SDL_VIDEO_DRIVER_UIKIT */

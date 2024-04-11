@@ -2340,12 +2340,12 @@ SDL_SetWindowSize(SDL_Window * window, int w, int h)
     window->windowed.w = w;
     window->windowed.h = h;
 
-    if (window->flags & SDL_WINDOW_FULLSCREEN) {
-        if (FULLSCREEN_VISIBLE(window) && (window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != SDL_WINDOW_FULLSCREEN_DESKTOP) {
-            window->last_fullscreen_flags = 0;
-            SDL_UpdateFullscreenMode(window, SDL_TRUE);
-        }
-    } else {
+//    if (window->flags & SDL_WINDOW_FULLSCREEN) {
+//        if (FULLSCREEN_VISIBLE(window) && (window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != SDL_WINDOW_FULLSCREEN_DESKTOP) {
+//            window->last_fullscreen_flags = 0;
+//            SDL_UpdateFullscreenMode(window, SDL_TRUE);
+//        }
+//    } else {
         int old_w = window->w;
         int old_h = window->h;
         window->w = w;
@@ -2357,7 +2357,7 @@ SDL_SetWindowSize(SDL_Window * window, int w, int h)
             /* We didn't get a SDL_WINDOWEVENT_RESIZED event (by design) */
             SDL_OnWindowResized(window);
         }
-    }
+//    }
 }
 
 void

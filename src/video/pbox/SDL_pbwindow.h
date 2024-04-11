@@ -58,6 +58,7 @@ extern void PB_SetWindowBordered(_THIS, SDL_Window * window, SDL_bool bordered);
 extern void PB_SetWindowFullscreen(_THIS, SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
 extern void PB_SetWindowMouseGrab(_THIS, SDL_Window * window, SDL_bool grabbed);
 extern void PB_DestroyWindow(_THIS, SDL_Window * window);
+extern void PB_SetWindowSize(_THIS, SDL_Window* window);
 extern SDL_bool PB_GetWindowWMInfo(_THIS, SDL_Window * window,
                                       struct SDL_SysWMinfo * info);
 

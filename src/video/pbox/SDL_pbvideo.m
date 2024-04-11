@@ -531,6 +531,7 @@ PB_CreateDevice(int devindex)
         device->SetWindowFullscreen = PB_SetWindowFullscreen;
 //        device->SetWindowMouseGrab = UIKit_SetWindowMouseGrab;
         device->DestroyWindow = PB_DestroyWindow;
+        device->SetWindowSize = PB_SetWindowSize;
         device->GetWindowWMInfo = PB_GetWindowWMInfo;
         device->GetDisplayUsableBounds = PB_GetDisplayUsableBounds;
         device->GetDisplayDPI = PB_GetDisplayDPI;
