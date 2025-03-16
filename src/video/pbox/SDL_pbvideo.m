@@ -591,7 +591,7 @@ PB_CreateDevice(int devindex)
 
 VideoBootStrap PB_bootstrap = {
     PBVID_DRIVER_NAME, "SDL PB video driver",
-    PB_CreateDevice
+    (SDL_VideoDevice *(*)(void))PB_CreateDevice
 };
 
 

@@ -396,7 +396,7 @@
 @synthesize uiwindow;
 @synthesize viewcontroller;
 @synthesize views;
-@synthesize uiqueue;
+@synthesize uiqueue_;
 @synthesize thread;
 
 - (instancetype)init
@@ -404,10 +404,18 @@
     if ((self = [super init])) {
         views = [NSMutableArray new];
         thread = [NSThread currentThread];
-        uiqueue = [[PBSafeArray alloc] init];
+        uiqueue_ = [[PBSafeArray alloc] init];
     }
 
     return self;
+}
+
+- (void) addPBTask:(PBTask)task {
+    if ([NSThread.currentThread isMainThread]) {
+        task();
+    } else {
+        [uiqueue_ addObject:task];
+    }
 }
 
 @end

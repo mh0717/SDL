@@ -508,7 +508,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
     if (scancode != SDL_SCANCODE_UNKNOWN) {
         if (self.window != NULL) {
             SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.window->driverdata;
-            [data.uiqueue addObject:^{
+            [data addPBTask:^{
                 SDL_SendKeyboardKeyAutoRelease(scancode);
             }];
         }
@@ -635,7 +635,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
     if (self.window == NULL) return;
     if (self.view == nil) return;
     SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.window->driverdata;
-    [data.uiqueue addObject:^{
+    [data addPBTask:^{
         if (!self->showingKeyboard && !self->rotatingOrientation) {
             SDL_StopTextInput();
         }
@@ -647,7 +647,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
     if (self.window == NULL) return;
     if (self.view == nil) return;
     SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.window->driverdata;
-    [data.uiqueue addObject:^{
+    [data addPBTask:^{
         [self textFieldTextDidChange_sdl: notification];
     }];
 }
@@ -662,40 +662,40 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
     {
         NSUInteger len = changeText.length;
         if (len > 0) {
-            if (!SDL_HardwareKeyboardKeyPressed()) {
-                /* Go through all the characters in the string we've been sent and
-                 * convert them to key presses */
-                int i;
-                for (i = 0; i < len; i++) {
-                    unichar c = [changeText characterAtIndex:i];
-                    SDL_Scancode code;
-                    Uint16 mod;
-
-                    if (c < 127) {
-                        /* Figure out the SDL_Scancode and SDL_keymod for this unichar */
-                        code = unicharToUIKeyInfoTable[c].code;
-                        mod  = unicharToUIKeyInfoTable[c].mod;
-                    } else {
-                        /* We only deal with ASCII right now */
-                        code = SDL_SCANCODE_UNKNOWN;
-                        mod = 0;
-                    }
-
-                    if (mod & KMOD_SHIFT) {
-                        /* If character uses shift, press shift */
-                        SDL_SendKeyboardKey(SDL_PRESSED, SDL_SCANCODE_LSHIFT);
-                    }
-
-                    /* send a keydown and keyup even for the character */
-                    SDL_SendKeyboardKey(SDL_PRESSED, code);
-                    SDL_SendKeyboardKey(SDL_RELEASED, code);
-
-                    if (mod & KMOD_SHIFT) {
-                        /* If character uses shift, release shift */
-                        SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_LSHIFT);
-                    }
-                }
-            }
+//            if (!SDL_HardwareKeyboardKeyPressed() && !SDL_PBHasGCKeyboard()) {
+//                /* Go through all the characters in the string we've been sent and
+//                 * convert them to key presses */
+//                int i;
+//                for (i = 0; i < len; i++) {
+//                    unichar c = [changeText characterAtIndex:i];
+//                    SDL_Scancode code;
+//                    Uint16 mod;
+//
+//                    if (c < 127) {
+//                        /* Figure out the SDL_Scancode and SDL_keymod for this unichar */
+//                        code = unicharToUIKeyInfoTable[c].code;
+//                        mod  = unicharToUIKeyInfoTable[c].mod;
+//                    } else {
+//                        /* We only deal with ASCII right now */
+//                        code = SDL_SCANCODE_UNKNOWN;
+//                        mod = 0;
+//                    }
+//
+//                    if (mod & KMOD_SHIFT) {
+//                        /* If character uses shift, press shift */
+//                        SDL_SendKeyboardKey(SDL_PRESSED, SDL_SCANCODE_LSHIFT);
+//                    }
+//
+//                    /* send a keydown and keyup even for the character */
+//                    SDL_SendKeyboardKey(SDL_PRESSED, code);
+//                    SDL_SendKeyboardKey(SDL_RELEASED, code);
+//
+//                    if (mod & KMOD_SHIFT) {
+//                        /* If character uses shift, release shift */
+//                        SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_LSHIFT);
+//                    }
+//                }
+//            }
             SDL_SendKeyboardText([changeText UTF8String]);
         }
         changeText = nil;
@@ -768,7 +768,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
             /* it wants to replace text with nothing, ie a delete */
             if (self.window != NULL) {
                 SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.window->driverdata;
-                [data.uiqueue addObject:^{
+                [data addPBTask:^{
                     SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_BACKSPACE);
                 }];
             }
@@ -788,7 +788,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 {
     if (self.window && self.view) {
         SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.window->driverdata;
-        [data.uiqueue addObject:^{
+        [data addPBTask:^{
             SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RETURN);
             if (self->keyboardVisible &&
                 SDL_GetHintBoolean(SDL_HINT_RETURN_KEY_HIDES_IME, SDL_FALSE)) {
@@ -990,7 +990,7 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
 - (void) handleExit {
     if (self.swindow) {
         SDL_PBWindowData* data = (__bridge SDL_PBWindowData*)self.swindow->driverdata;
-        [data.uiqueue addObject:^{
+        [data addPBTask:^{
             SDL_SendWindowEvent(self.swindow, SDL_WINDOWEVENT_CLOSE, 0, 0);
             SDL_SendQuit();
         }];
@@ -1018,8 +1018,8 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
         int h = (int) size.height;
         
         __block SDL_pbviewcontroller* vc = data.viewcontroller;
-        [data.uiqueue addObject:^{
-            SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_RESIZED, w, h);
+        [data addPBTask:^{
+//            SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_RESIZED, w, h);
             [vc viewDidLayoutSubviews];
         }];
     }
@@ -1087,7 +1087,7 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     if (!SDL_PBHasGCKeyboard()) {
         for (UIPress *press in presses) {
             SDL_Scancode scancode = [self scancodeFromPress:press];
-            [data.uiqueue addObject:^{
+            [data addPBTask:^{
                 SDL_SendKeyboardKey(SDL_PRESSED, scancode);
             }];
         }
@@ -1106,21 +1106,22 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     if (!SDL_PBHasGCKeyboard()) {
         for (UIPress *press in presses) {
             SDL_Scancode scancode = [self scancodeFromPress:press];
-            [data.uiqueue addObject:^{
+            [data addPBTask:^{
                 SDL_SendKeyboardKey(SDL_RELEASED, scancode);
             }];
         }
     }
     
-    for (UIPress *press in presses) {
-        NSString* text = press.key.characters;
-        if (text && text.length == 1) {
-            [data.uiqueue addObject:^{
-                SDL_SendKeyboardText(text.UTF8String);
-            }];
+    if (!SDL_IsScreenKeyboardShown(self.swindow)) {
+        for (UIPress *press in presses) {
+            NSString* text = press.key.characters;
+            if (text && text.length == 1) {
+                [data addPBTask:^{
+                    SDL_SendKeyboardText(text.UTF8String);
+                }];
+            }
         }
     }
-    
    
 }
 
@@ -1135,7 +1136,7 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
     if (!SDL_PBHasGCKeyboard()) {
         for (UIPress *press in presses) {
             SDL_Scancode scancode = [self scancodeFromPress:press];
-            [data.uiqueue addObject:^{
+            [data addPBTask:^{
                 SDL_SendKeyboardKey(SDL_RELEASED, scancode);
             }];
         }

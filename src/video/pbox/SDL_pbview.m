@@ -303,15 +303,25 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
     if (self.swindow == NULL) {
         return;
     }
-    
+    SDL_Window* wd = self.swindow;
     SDL_PBWindowData *data = (__bridge SDL_PBWindowData *) self.swindow->driverdata;
     SDL_pbview* view = data.viewcontroller.view;
     CGRect sframe = self.bounds;
     CGFloat scale = self.contentScaleFactor;
-    [data.uiqueue addObject:^{
+    
+    if (CGSizeEqualToSize(sframe.size, view.frame.size) && scale == view.contentScaleFactor) {
+        return;
+    }
+//    view.frame = sframe;
+//    view.contentScaleFactor = scale;
+    
+//    [view performSelector:@selector(layoutSubviews) withObject:nil afterDelay:0.3];
+    [data addPBTask:^{
         view.frame = sframe;
         view.contentScaleFactor = scale;
         [view layoutSubviews];
+        
+        SDL_SendWindowEvent(wd, SDL_WINDOWEVENT_RESIZED, sframe.size.width, sframe.size.height);
     }];
 }
 
@@ -329,7 +339,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
         if (self.swindow) {
             SDL_Window* wd = self.swindow;
             SDL_PBWindowData* wddata = (__bridge SDL_PBWindowData*)wd->driverdata;
-            [wddata.uiqueue addObject:^{
+            [wddata addPBTask:^{
                 SDL_SendMouseMotion(wd, 0, 0, (int)px, (int)py);
             }];
         }
@@ -432,7 +442,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
                             }
                             
                             
-                            [wddata.uiqueue addObject:^{
+                            [wddata addPBTask:^{
                                 SDL_SendMouseButton(wd, 0, SDL_PRESSED, button);
                             }];
                             
@@ -451,7 +461,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
             CGFloat lx = locationInView.x;
             CGFloat ly = locationInView.y;
             
-            [wddata.uiqueue addObject:^{
+            [wddata addPBTask:^{
                 if (SDL_AddTouch(touchId, touchType, "") < 0) {
                     return;
                 }
@@ -493,7 +503,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
                                 button = (Uint8)i;
                                 break;
                             }
-                            [wddata.uiqueue addObject:^{
+                            [wddata addPBTask:^{
                                 SDL_SendMouseButton(wd, 0, SDL_RELEASED, button);
                             }];
                             
@@ -512,7 +522,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
             CGFloat lx = locationInView.x;
             CGFloat ly = locationInView.y;
             
-            [wddata.uiqueue addObject:^{
+            [wddata addPBTask:^{
                 if (SDL_AddTouch(touchId, touchType, "") < 0) {
                     return;
                 }
@@ -546,7 +556,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
             CGFloat lx = locationInView.x;
             CGFloat ly = locationInView.y;
             
-            [wddata.uiqueue addObject:^{
+            [wddata addPBTask:^{
                 if (SDL_AddTouch(touchId, touchType, "") < 0) {
                     return;
                 }

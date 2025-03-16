@@ -67,8 +67,8 @@ PB_PumpEvents(_THIS)
     SDL_Window *window;
     for (window = _this->windows; window; window = window->next) {
         SDL_PBWindowData* wdata = (__bridge SDL_PBWindowData*)window->driverdata;
-        NSArray* queue = [NSArray arrayWithArray:wdata.uiqueue];
-        [wdata.uiqueue removeAllObjects];
+        NSArray* queue = [NSArray arrayWithArray:wdata.uiqueue_];
+        [wdata.uiqueue_ removeAllObjects];
         
         for (PBTask task in queue) {
             task();
@@ -115,7 +115,10 @@ static void OnGCKeyboardConnected(GCKeyboard *keyboard) API_AVAILABLE(macos(11.0
     keyboard_connected = SDL_TRUE;
     keyboard.keyboardInput.keyChangedHandler = ^(GCKeyboardInput *keyboard, GCControllerButtonInput *key, GCKeyCode keyCode, BOOL pressed)
     {
-        SDL_SendKeyboardKey(pressed ? SDL_PRESSED : SDL_RELEASED, (SDL_Scancode)keyCode);
+        if (!SDL_IsTextInputActive()) {
+            SDL_SendKeyboardKey(pressed ? SDL_PRESSED : SDL_RELEASED, (SDL_Scancode)keyCode);
+        }
+        
         
     };
 

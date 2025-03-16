@@ -96,7 +96,9 @@ typedef void (^PBTask)(void);
 @property (nonatomic, copy) NSMutableArray *views;
 
 @property (nonatomic, strong) NSThread* thread;
-@property (nonatomic, strong) PBSafeArray* uiqueue;
+
+- (void) addPBTask:(PBTask) task;
+@property (nonatomic, strong) PBSafeArray* uiqueue_;
 
 @end
 

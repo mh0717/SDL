@@ -350,6 +350,8 @@ PB_DelDisplay(UIScreen *uiscreen)
 SDL_bool
 PB_IsDisplayLandscape(UIScreen *uiscreen)
 {
+    CGSize size = uiscreen.bounds.size;
+    
 #if !TARGET_OS_TV
     if (uiscreen == [UIScreen mainScreen]) {
         __block UIInterfaceOrientation orient = UIInterfaceOrientationPortrait;
