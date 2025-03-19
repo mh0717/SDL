@@ -327,6 +327,9 @@
 
 - (void)updateFrame
 {
+    extern SDL_mutex* pb_screen_updating_mutex;
+    SDL_LockMutex(pb_screen_updating_mutex);
+    
     GLint prevRenderbuffer = 0;
     glGetIntegerv(GL_RENDERBUFFER_BINDING, &prevRenderbuffer);
 
@@ -352,6 +355,8 @@
     }
 
     glBindRenderbuffer(GL_RENDERBUFFER, prevRenderbuffer);
+    
+    SDL_UnlockMutex(pb_screen_updating_mutex);
 }
 
 - (void)setDebugLabels

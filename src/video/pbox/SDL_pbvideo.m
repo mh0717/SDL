@@ -595,6 +595,8 @@ VideoBootStrap PB_bootstrap = {
 };
 
 
+SDL_mutex* pb_screen_updating_mutex = NULL;
+
 int
 PB_VideoInit(_THIS)
 {
@@ -606,6 +608,8 @@ PB_VideoInit(_THIS)
 
     SDL_PBInitGCKeyboard();
     SDL_PBInitGCMouse();
+    
+    pb_screen_updating_mutex = SDL_CreateMutex();
 
     return 0;
 }

@@ -352,21 +352,21 @@ PB_IsDisplayLandscape(UIScreen *uiscreen)
 {
     CGSize size = uiscreen.bounds.size;
     
-#if !TARGET_OS_TV
-    if (uiscreen == [UIScreen mainScreen]) {
-        __block UIInterfaceOrientation orient = UIInterfaceOrientationPortrait;
-        if (NSThread.isMainThread) {
-            orient = [UIApplication sharedApplication].statusBarOrientation;
-        }
-        else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                orient = [UIApplication sharedApplication].statusBarOrientation;
-            });
-        }
-        BOOL isLandscape = UIInterfaceOrientationIsLandscape(orient);
-        return isLandscape;
-    } else
-#endif /* !TARGET_OS_TV */
+//#if !TARGET_OS_TV
+//    if (uiscreen == [UIScreen mainScreen]) {
+//        __block UIInterfaceOrientation orient = UIInterfaceOrientationPortrait;
+//        if (NSThread.isMainThread) {
+//            orient = [UIApplication sharedApplication].statusBarOrientation;
+//        }
+//        else {
+//            dispatch_sync(dispatch_get_main_queue(), ^{
+//                orient = [UIApplication sharedApplication].statusBarOrientation;
+//            });
+//        }
+//        BOOL isLandscape = UIInterfaceOrientationIsLandscape(orient);
+//        return isLandscape;
+//    } else
+//#endif /* !TARGET_OS_TV */
     {
         CGSize size = uiscreen.bounds.size;
         return (size.width > size.height);
@@ -558,9 +558,9 @@ void SDL_PBOnApplicationDidChangeStatusBarOrientation()
         orient = [UIApplication sharedApplication].statusBarOrientation;
     }
     else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            orient = [UIApplication sharedApplication].statusBarOrientation;
-        });
+//        dispatch_sync(dispatch_get_main_queue(), ^{
+//            orient = [UIApplication sharedApplication].statusBarOrientation;
+//        });
     }
     BOOL isLandscape = UIInterfaceOrientationIsLandscape(orient);
     SDL_VideoDisplay *display = SDL_GetDisplay(0);
