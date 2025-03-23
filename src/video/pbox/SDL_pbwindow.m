@@ -758,30 +758,30 @@ PB_UpdateWindowBorder(_THIS, SDL_Window * window)
 
 #if !TARGET_OS_TV
     
-    void (^handler)(void) = ^{
-    if (data.uiwindow.screen == [UIScreen mainScreen]) {
-        
-//        if (window->flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS)) {
-//            [UIApplication sharedApplication].statusBarHidden = YES;
-//        } else {
-//            [UIApplication sharedApplication].statusBarHidden = NO;
-//        }
+//    void (^handler)(void) = ^{
+//    if (data.uiwindow.screen == [UIScreen mainScreen]) {
+//        
+////        if (window->flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS)) {
+////            [UIApplication sharedApplication].statusBarHidden = YES;
+////        } else {
+////            [UIApplication sharedApplication].statusBarHidden = NO;
+////        }
+////
+////        /* iOS 7+ won't update the status bar until we tell it to. */
+////        if ([viewcontroller respondsToSelector:@selector(setNeedsStatusBarAppearanceUpdate)]) {
+//////            [viewcontroller setNeedsStatusBarAppearanceUpdate];
+////        }
+//    }
 //
-//        /* iOS 7+ won't update the status bar until we tell it to. */
-//        if ([viewcontroller respondsToSelector:@selector(setNeedsStatusBarAppearanceUpdate)]) {
-////            [viewcontroller setNeedsStatusBarAppearanceUpdate];
-//        }
-    }
-
-    /* Update the view's frame to account for the status bar change. */
-    viewcontroller.view.frame = PB_ComputeViewFrame(window, data.uiwindow.screen);
-    };
-    if (NSThread.isMainThread) {
-        handler();
-    }
-    else {
-        dispatch_sync(dispatch_get_main_queue(), handler);
-    }
+//    /* Update the view's frame to account for the status bar change. */
+//    viewcontroller.view.frame = PB_ComputeViewFrame(window, data.uiwindow.screen);
+//    };
+//    if (NSThread.isMainThread) {
+//        handler();
+//    }
+//    else {
+//        dispatch_sync(dispatch_get_main_queue(), handler);
+//    }
 #endif /* !TARGET_OS_TV */
 
 #ifdef SDL_IPHONE_KEYBOARD
