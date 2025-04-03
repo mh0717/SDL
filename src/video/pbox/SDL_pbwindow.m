@@ -440,7 +440,7 @@
         if (NSThread.isMainThread) {
             data.uvcontroller.contentView = _rootViewController.view.view;
         } else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
                 data.uvcontroller.contentView = _rootViewController.view.view;
             });
         }
@@ -989,7 +989,7 @@ PB_SetWindowOpacity(_THIS, SDL_Window * window, float opacity)
             data.uvcontroller.view.alpha = opacity;
         }
         else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
                 data.uvcontroller.view.alpha = opacity;
             });
         }

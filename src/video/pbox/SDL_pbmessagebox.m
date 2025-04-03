@@ -89,7 +89,7 @@ PB_ShowMessageBoxAlertController(const SDL_MessageBoxData *messageboxdata, int *
         handler();
     }
     else {
-        dispatch_sync(dispatch_get_main_queue(), handler);
+        dispatch_async(dispatch_get_main_queue(), handler);
     }
     
     PB_WaitUntilMessageBoxClosed(messageboxdata, &clickedindex);

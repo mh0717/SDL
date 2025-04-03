@@ -464,7 +464,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
         handle();
     }
     else {
-        dispatch_sync(dispatch_get_main_queue(), handle);
+        dispatch_async(dispatch_get_main_queue(), handle);
     }
     
     keyboardVisible = NO;
@@ -871,12 +871,15 @@ PB_SetTextInputRect(_THIS, const SDL_Rect *rect)
 
             if (vc.keyboardVisible) {
                 if (NSThread.isMainThread) {
-                    [vc updateKeyboard];
+                    [vc updateKeyboard_sdl];
                 }
                 else {
-                    dispatch_sync(dispatch_get_main_queue(), ^{
-                        [vc updateKeyboard];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [vc updateKeyboard_sdl];
                     });
+//                    dispatch_sync(dispatch_get_main_queue(), ^{
+//                        [vc updateKeyboard_sdl];
+//                    });
                 }
                 
             }

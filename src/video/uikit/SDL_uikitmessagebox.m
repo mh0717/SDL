@@ -145,7 +145,7 @@ UIKit_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     if ([NSThread isMainThread]) {
         UIKit_ShowMessageBoxImpl(messageboxdata, buttonid, &returnValue);
     } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{ UIKit_ShowMessageBoxImpl(messageboxdata, buttonid, &returnValue); });
+        dispatch_async(dispatch_get_main_queue(), ^{ UIKit_ShowMessageBoxImpl(messageboxdata, buttonid, &returnValue); });
     }
     return returnValue;
 }}
