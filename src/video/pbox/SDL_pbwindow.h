@@ -71,6 +71,8 @@ extern int PB_SetWindowOpacity(_THIS, SDL_Window * window, float opacity);
 
 - (instancetype) initWithFrame:(CGRect)frame;
 
+@property(nonatomic, assign) CGRect frame;
+@property(nonatomic, assign) CGRect bounds;
 @property(nonatomic,strong) UIScreen *screen;
 @property(nonatomic, copy) NSString* title;
 @property(nonatomic, assign) BOOL hidden;

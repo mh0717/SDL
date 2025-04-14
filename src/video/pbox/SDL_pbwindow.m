@@ -387,7 +387,7 @@
 //#import "SDL_uikitappdelegate.h"
 
 #import "SDL_pbview.h"
-//#import "SDL_uikitopenglview.h"
+#import "SDL_pbopenglview.h"
 
 #include <Foundation/Foundation.h>
 
@@ -427,9 +427,14 @@
 - (instancetype) initWithFrame:(CGRect)frame {
     self = [super init];
     if (self) {
+        self.frame = frame;
         self.screen = [UIScreen mainScreen];
     }
     return self;
+}
+
+- (CGRect) bounds {
+    return CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
 }
 
 - (void) setRootViewController:(SDL_pbviewcontroller *)rootViewController {
@@ -862,25 +867,25 @@ PB_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo * info)
         if (info->version.major <= SDL_MAJOR_VERSION) {
             int versionnum = SDL_VERSIONNUM(info->version.major, info->version.minor, info->version.patch);
 
-            info->subsystem = SDL_SYSWM_UIKIT;
-//            info->info.uikit.window = data.uiwindow;
-#warning PBOX
+            info->subsystem = SDL_SYSWM_PBOX;
+            info->info.pbox.window = data.uiwindow;
+
             /* These struct members were added in SDL 2.0.4. */
             if (versionnum >= SDL_VERSIONNUM(2,0,4)) {
-//#if SDL_VIDEO_OPENGL_ES || SDL_VIDEO_OPENGL_ES2
-//                if ([data.viewcontroller.view isKindOfClass:[SDL_uikitopenglview class]]) {
-//                    SDL_uikitopenglview *glview = (SDL_uikitopenglview *)data.viewcontroller.view;
-//                    info->info.uikit.framebuffer = glview.drawableFramebuffer;
-//                    info->info.uikit.colorbuffer = glview.drawableRenderbuffer;
-//                    info->info.uikit.resolveFramebuffer = glview.msaaResolveFramebuffer;
-//                } else {
-//#else
-//                {
-//#endif
-                    info->info.uikit.framebuffer = 0;
-                    info->info.uikit.colorbuffer = 0;
-                    info->info.uikit.resolveFramebuffer = 0;
-//                }
+#if SDL_VIDEO_OPENGL_ES || SDL_VIDEO_OPENGL_ES2
+                if ([data.viewcontroller.view isKindOfClass:[SDL_pbopenglview class]]) {
+                    SDL_pbopenglview *glview = (SDL_pbopenglview *)data.viewcontroller.view;
+                    info->info.pbox.framebuffer = glview.drawableFramebuffer;
+                    info->info.pbox.colorbuffer = glview.drawableRenderbuffer;
+                    info->info.pbox.resolveFramebuffer = glview.msaaResolveFramebuffer;
+                } else {
+#else
+                {
+#endif
+                    info->info.pbox.framebuffer = 0;
+                    info->info.pbox.colorbuffer = 0;
+                    info->info.pbox.resolveFramebuffer = 0;
+                }
             }
 
             return SDL_TRUE;

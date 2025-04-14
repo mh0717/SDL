@@ -1,0 +1,181 @@
+/*
+ Simple DirectMedia Layer
+ Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
+ 
+ This software is provided 'as-is', without any express or implied
+ warranty.  In no event will the authors be held liable for any damages
+ arising from the use of this software.
+ 
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it
+ freely, subject to the following restrictions:
+ 
+ 1. The origin of this software must not be misrepresented; you must not
+ claim that you wrote the original software. If you use this software
+ in a product, an acknowledgment in the product documentation would be
+ appreciated but is not required.
+ 2. Altered source versions must be plainly marked as such, and must not be
+ misrepresented as being the original software.
+ 3. This notice may not be removed or altered from any source distribution.
+ */
+
+/*
+ * @author Mark Callow, www.edgewise-consulting.com.
+ *
+ * Thanks to @slime73 on GitHub for their gist showing how to add a CAMetalLayer
+ * backed view.
+ */
+
+#include "../../SDL_internal.h"
+
+#if SDL_VIDEO_DRIVER_PBOX && (SDL_VIDEO_VULKAN || SDL_VIDEO_METAL)
+
+#include "SDL_syswm.h"
+#include "../SDL_sysvideo.h"
+
+#import "SDL_pbwindow.h"
+#import "SDL_pbmetalview.h"
+
+@implementation SDL_pbmetalview
+
+
+- (instancetype)initWithFrame:(CGRect)frame
+                        scale:(CGFloat)scale
+{
+    if ((self = [super initWithFrame:frame])) {
+        void (^handler)(void) = ^{
+            self.view = [[SDL_pbuikitmetalview alloc] initWithFrame:frame scale:scale];
+        };
+        if (NSThread.isMainThread) {
+            handler();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                handler();
+            });
+        }
+        self.contentScaleFactor = scale;
+    }
+    return self;
+}
+
+/* Set the size of the metal drawables when the view is resized. */
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    [self updateDrawableSize];
+}
+
+- (void)updateDrawableSize
+{
+    if (NSThread.isMainThread) {
+        [(SDL_pbuikitmetalview*)self.view layoutSubviews];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.view layoutSubviews];
+        });
+    }
+}
+
+@end
+
+
+@implementation SDL_pbuikitmetalview
+
+/* Returns a Metal-compatible layer. */
++ (Class)layerClass
+{
+    return [CAMetalLayer class];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+                        scale:(CGFloat)scale
+{
+    if ((self = [super initWithFrame:frame])) {
+        self.tag = SDL_METALVIEW_TAG;
+        self.layer.contentsScale = scale;
+        [self updateDrawableSize];
+    }
+
+    return self;
+}
+
+/* Set the size of the metal drawables when the view is resized. */
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    [self updateDrawableSize];
+}
+
+- (void)updateDrawableSize
+{
+    CGSize size = self.bounds.size;
+    size.width *= self.layer.contentsScale;
+    size.height *= self.layer.contentsScale;
+    ((CAMetalLayer *)self.layer).drawableSize = size;
+}
+
+@end
+
+SDL_MetalView
+PB_Metal_CreateView(_THIS, SDL_Window * window)
+{ @autoreleasepool {
+    SDL_PBWindowData *data = (__bridge SDL_PBWindowData *)window->driverdata;
+    CGFloat scale = 1.0;
+    SDL_pbmetalview *metalview;
+
+    if (window->flags & SDL_WINDOW_ALLOW_HIGHDPI) {
+        /* Set the scale to the natural scale factor of the screen - then
+         * the backing dimensions of the Metal view will match the pixel
+         * dimensions of the screen rather than the dimensions in points
+         * yielding high resolution on retine displays.
+         */
+        scale = data.uiwindow.screen.nativeScale;
+    }
+
+    metalview = [[SDL_pbmetalview alloc] initWithFrame:data.uiwindow.bounds
+                                                    scale:scale];
+    [metalview setSDLWindow:window];
+
+    return (void*)CFBridgingRetain(metalview.view);
+}}
+
+void
+PB_Metal_DestroyView(_THIS, SDL_MetalView view)
+{ @autoreleasepool {
+    SDL_pbmetalview *metalview = CFBridgingRelease(view);
+
+    if ([metalview isKindOfClass:[SDL_pbmetalview class]]) {
+        [metalview setSDLWindow:NULL];
+    }
+}}
+
+void *
+PB_Metal_GetLayer(_THIS, SDL_MetalView view)
+{ @autoreleasepool {
+    SDL_pbuiview *uiview = [(__bridge SDL_pbview *)view view];
+    return (__bridge void *)uiview.layer;
+}}
+
+void
+PB_Metal_GetDrawableSize(_THIS, SDL_Window * window, int * w, int * h)
+{
+    @autoreleasepool {
+        SDL_PBWindowData *data = (__bridge SDL_PBWindowData *)window->driverdata;
+        SDL_pbview *view = (SDL_pbview*)data.uiwindow.rootViewController.view;
+        SDL_pbuikitmetalview* metalview = (SDL_pbuikitmetalview*)view.view;
+        if (metalview) {
+            CAMetalLayer *layer = (CAMetalLayer*)metalview.layer;
+            assert(layer != NULL);
+            if (w) {
+                *w = layer.drawableSize.width;
+            }
+            if (h) {
+                *h = layer.drawableSize.height;
+            }
+        } else {
+            SDL_GetWindowSize(window, w, h);
+        }
+    }
+}
+
+#endif /* SDL_VIDEO_DRIVER_UIKIT && (SDL_VIDEO_VULKAN || SDL_VIDEO_METAL) */

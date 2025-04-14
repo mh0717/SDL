@@ -473,7 +473,7 @@
 #include "SDL_pbclipboard.h"
 #include "SDL_pbviewcontroller.h"
 //#include "SDL_uikitvulkan.h"
-//#include "SDL_uikitmetalview.h"
+#include "SDL_pbmetalview.h"
 
 #define PBVID_DRIVER_NAME "pbox"
 
@@ -568,19 +568,19 @@ PB_CreateDevice(int devindex)
         device->free = PB_DeleteDevice;
 
 #if SDL_VIDEO_VULKAN
-        device->Vulkan_LoadLibrary = SDL_Vulkan_LoadLibrary;
-        device->Vulkan_UnloadLibrary = SDL_Vulkan_UnloadLibrary;
-        device->Vulkan_GetInstanceExtensions
-                                     = SDL_Vulkan_GetInstanceExtensions;
-        device->Vulkan_CreateSurface = SDL_Vulkan_CreateSurface;
-        device->Vulkan_GetDrawableSize = SDL_Vulkan_GetDrawableSize;
+//        device->Vulkan_LoadLibrary = SDL_Vulkan_LoadLibrary;
+//        device->Vulkan_UnloadLibrary = SDL_Vulkan_UnloadLibrary;
+//        device->Vulkan_GetInstanceExtensions
+//                                     = SDL_Vulkan_GetInstanceExtensions;
+//        device->Vulkan_CreateSurface = SDL_Vulkan_CreateSurface;
+//        device->Vulkan_GetDrawableSize = SDL_Vulkan_GetDrawableSize;
 #endif
 
 #if SDL_VIDEO_METAL
-        device->Metal_CreateView = SDL_Metal_CreateView;
-        device->Metal_DestroyView = SDL_Metal_DestroyView;
-        device->Metal_GetLayer = SDL_Metal_GetLayer;
-        device->Metal_GetDrawableSize = SDL_Metal_GetDrawableSize;
+        device->Metal_CreateView = PB_Metal_CreateView;
+        device->Metal_DestroyView = PB_Metal_DestroyView;
+        device->Metal_GetLayer = PB_Metal_GetLayer;
+        device->Metal_GetDrawableSize = PB_Metal_GetDrawableSize;
 #endif
 
         device->gl_config.accelerated = 1;

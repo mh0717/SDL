@@ -54,6 +54,8 @@
 #endif
 
 #import "SDL_uikitwindow.h"
+#import "SDL_pbwindow.h"
+#import "SDL_pbmetalview.h"
 
 /* Apple Metal renderer implementation */
 
@@ -164,7 +166,7 @@ typedef struct METAL_ShaderPipelines
 static int
 IsMetalAvailable(const SDL_SysWMinfo *syswm)
 {
-    if (syswm->subsystem != SDL_SYSWM_COCOA && syswm->subsystem != SDL_SYSWM_UIKIT) {
+    if (syswm->subsystem != SDL_SYSWM_COCOA && syswm->subsystem != SDL_SYSWM_UIKIT && syswm->subsystem != SDL_SYSWM_PBOX) {
         return SDL_SetError("Metal render target only supports Cocoa and UIKit video targets at the moment.");
     }
 
@@ -1620,6 +1622,16 @@ static SDL_MetalView GetWindowView(SDL_Window *window)
             if (view.tag == SDL_METALVIEW_TAG) {
                 return (SDL_MetalView)CFBridgingRetain(view);
             }
+        }
+        
+        if (info.subsystem == SDL_SYSWM_PBOX) {
+            SDL_pbview* view = info.info.pbox.window.rootViewController.view;
+            if ([view isKindOfClass:[SDL_pbmetalview class]]) {
+                return (SDL_MetalView)CFBridgingRetain(view.view);
+            }
+//            if (view.view.tag == SDL_METALVIEW_TAG) {
+//                return (SDL_MetalView)CFBridgingRetain(view.view);
+//            }
         }
 #endif
     }

@@ -82,7 +82,8 @@ CGSize SDL_SCREEN_SIZE(void) {
 
 - (instancetype) initWithFrame:(CGRect)frame {
     self = [super init];
-    self.hidden = NO;
+    _screen = UIScreen.mainScreen;
+    _hidden = NO;
     
     return self;
 }
@@ -116,9 +117,13 @@ CGSize SDL_SCREEN_SIZE(void) {
     
     [self.class performSelector:@selector(refreshWindows) withObject:nil afterDelay:0];
     
+    if (self.rootViewController == nil) {
+        return;
+    }
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    NSString* notiName = _hidden ? @"UI_SHOW_VC_IN_TAB" : @"UI_HIDE_VC_IN_TAB";
-    NSNotification* noti = [[NSNotification alloc] initWithName:notiName object:nil userInfo:@{@"vc": self}];
+    NSString* notiName = !_hidden ? @"UI_SHOW_VC_IN_TAB" : @"UI_HIDE_VC_IN_TAB";
+    NSNotification* noti = [[NSNotification alloc] initWithName:notiName object:nil userInfo:@{@"vc": self.rootViewController}];
     [self performSelector:@selector(sendNoti:) withObject:noti afterDelay:0];
 }
 

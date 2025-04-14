@@ -100,6 +100,16 @@ typedef struct _SDL_uikitwindow SDL_uikitwindow;
 typedef Uint32 GLuint;
 #endif
 
+#if defined(SDL_VIDEO_DRIVER_PBOX)
+#ifdef __OBJC__
+#include <UIKit/UIKit.h>
+@class SDL_pbwindow;
+#else
+typedef struct _SDL_pbwindow SDL_pbwindow;
+#endif
+typedef Uint32 GLuint;
+#endif
+
 #if defined(SDL_VIDEO_VULKAN) || defined(SDL_VIDEO_METAL)
 #define SDL_METALVIEW_TAG 255
 #endif
@@ -150,7 +160,8 @@ typedef enum
     SDL_SYSWM_OS2,
     SDL_SYSWM_HAIKU,
     SDL_SYSWM_KMSDRM,
-    SDL_SYSWM_RISCOS
+    SDL_SYSWM_RISCOS,
+    SDL_SYSWM_PBOX,
 } SDL_SYSWM_TYPE;
 
 /**
@@ -290,6 +301,23 @@ struct SDL_SysWMinfo
             GLuint colorbuffer; /**< The GL view's color Renderbuffer Object. It must be bound when SDL_GL_SwapWindow is called. */
             GLuint resolveFramebuffer; /**< The Framebuffer Object which holds the resolve color Renderbuffer, when MSAA is used. */
         } uikit;
+#endif
+#if defined(SDL_VIDEO_DRIVER_PBOX)
+        struct
+        {
+#if defined(__OBJC__) && defined(__has_feature)
+        #if __has_feature(objc_arc)
+            SDL_pbwindow __unsafe_unretained *window; /**< The UIKit window */
+        #else
+            SDL_pbwindow *window;                     /**< The UIKit window */
+        #endif
+#else
+            SDL_pbwindow *window;                     /**< The UIKit window */
+#endif
+            GLuint framebuffer; /**< The GL view's Framebuffer Object. It must be bound when rendering to the screen using GL. */
+            GLuint colorbuffer; /**< The GL view's color Renderbuffer Object. It must be bound when SDL_GL_SwapWindow is called. */
+            GLuint resolveFramebuffer; /**< The Framebuffer Object which holds the resolve color Renderbuffer, when MSAA is used. */
+        } pbox;
 #endif
 #if defined(SDL_VIDEO_DRIVER_WAYLAND)
         struct
