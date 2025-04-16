@@ -7,7 +7,7 @@
 
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_DRIVER_UIKIT
+#if SDL_VIDEO_DRIVER_PBOX
 
 #include "SDL.h"
 #include "SDL_pbvideo.h"

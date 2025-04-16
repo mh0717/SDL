@@ -125,7 +125,10 @@ static const SDL_RenderDriver *render_drivers[] = {
     &VITA_GXM_RenderDriver,
 #endif
 #if SDL_VIDEO_RENDER_SW
-    &SW_RenderDriver
+    &SW_RenderDriver,
+#endif
+#ifdef SDL_VIDEO_RENDER_VULKAN
+    &VULKAN_RenderDriver,
 #endif
 };
 #endif /* !SDL_RENDER_DISABLED */

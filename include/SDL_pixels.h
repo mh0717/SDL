@@ -315,6 +315,20 @@ typedef struct SDL_Color
 } SDL_Color;
 #define SDL_Colour SDL_Color
 
+/**
+ * The bits of this structure can be directly reinterpreted as a float-packed
+ * color which uses the SDL_PIXELFORMAT_RGBA128_FLOAT format
+ *
+ * \since This struct is available since SDL 3.2.0.
+ */
+typedef struct SDL_FColor
+{
+    float r;
+    float g;
+    float b;
+    float a;
+} SDL_FColor;
+
 typedef struct SDL_Palette
 {
     int ncolors;

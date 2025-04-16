@@ -32,7 +32,7 @@
 #include "../SDL_sysvideo.h"
 #include "SDL_pbwindow.h"
 
-#if SDL_VIDEO_DRIVER_UIKIT && (SDL_VIDEO_VULKAN || SDL_VIDEO_METAL)
+#if SDL_VIDEO_DRIVER_PBOX && (SDL_VIDEO_VULKAN || SDL_VIDEO_METAL)
 
 #import <UIKit/UIKit.h>
 #import <Metal/Metal.h>

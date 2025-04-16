@@ -472,7 +472,7 @@
 #include "SDL_pbopengles.h"
 #include "SDL_pbclipboard.h"
 #include "SDL_pbviewcontroller.h"
-//#include "SDL_uikitvulkan.h"
+#include "SDL_pbvulkan.h"
 #include "SDL_pbmetalview.h"
 
 #define PBVID_DRIVER_NAME "pbox"
@@ -568,12 +568,12 @@ PB_CreateDevice(int devindex)
         device->free = PB_DeleteDevice;
 
 #if SDL_VIDEO_VULKAN
-//        device->Vulkan_LoadLibrary = SDL_Vulkan_LoadLibrary;
-//        device->Vulkan_UnloadLibrary = SDL_Vulkan_UnloadLibrary;
-//        device->Vulkan_GetInstanceExtensions
-//                                     = SDL_Vulkan_GetInstanceExtensions;
-//        device->Vulkan_CreateSurface = SDL_Vulkan_CreateSurface;
-//        device->Vulkan_GetDrawableSize = SDL_Vulkan_GetDrawableSize;
+        device->Vulkan_LoadLibrary = PB_Vulkan_LoadLibrary;
+        device->Vulkan_UnloadLibrary = PB_Vulkan_UnloadLibrary;
+        device->Vulkan_GetInstanceExtensions
+                                     = PB_Vulkan_GetInstanceExtensions;
+        device->Vulkan_CreateSurface = PB_Vulkan_CreateSurface;
+        device->Vulkan_GetDrawableSize = PB_Vulkan_GetDrawableSize;
 #endif
 
 #if SDL_VIDEO_METAL
